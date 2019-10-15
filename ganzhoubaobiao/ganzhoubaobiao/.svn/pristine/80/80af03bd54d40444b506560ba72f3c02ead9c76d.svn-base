@@ -1,0 +1,37 @@
+package com.zklcsoftware.ganzhoubaobiao.repository;
+
+import java.util.List;
+import java.util.Map;
+
+import com.zklcsoftware.basic.repository.BaseRepositoryExt;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolSchedule;
+import com.zklcsoftware.ganzhoubaobiao.dto.checkListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.scheduleListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.yearSortListDto;
+
+/**
+ * Service Interface:TSchoolSchedule
+ * @author administrator
+ * @date 2019-3-18
+ */
+public interface TSchoolScheduleRepositoryExt extends BaseRepositoryExt {
+
+	List<TSchoolSchedule> checkStatusList(Map<String, Object> params);
+
+	List<checkListDto> checkShijiList(Map<String, Object> params);
+
+	List<checkListDto> checkQujiList(Map<String, Object> params);
+
+	List<checkListDto> checkXuexiaoList(Map<String, Object> params);
+
+	List<scheduleListDto> quxianScheduleList(Map<String, Object> params);
+
+	List<checkListDto> checkInfoShijiList(Map<String, Object> params);
+
+	List<checkListDto> checkInfoQuxianList(Map<String, Object> params);
+
+	List<checkListDto> checkInfoXuexiaoList(Map<String, Object> params);
+
+	yearSortListDto yearSort(Map<String, Object> params);
+	
+}

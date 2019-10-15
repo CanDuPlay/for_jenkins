@@ -1,0 +1,20 @@
+package com.zklcsoftware.ganzhoubaobiao.repository.impl;
+
+import java.util.HashMap;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import com.zklcsoftware.basic.repository.BaseRepositoryExtImpl;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectVueDTO;
+import com.zklcsoftware.ganzhoubaobiao.repository.TProjectRepositoryExt;
+
+public class TProjectRepositoryImpl extends BaseRepositoryExtImpl implements TProjectRepositoryExt {
+
+    @Override
+    public Page<TProjectVueDTO> findByParams(HashMap<String, Object> params, Pageable pageable) {
+        
+        return findPage("findProjectByParams", "findProjectByParamsCount", params, pageable, TProjectVueDTO.class);
+    }
+	
+}

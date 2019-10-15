@@ -1,0 +1,30 @@
+package com.zklcsoftware.ganzhoubaobiao.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolFile;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolInverted;
+
+import lombok.Data;
+
+@SuppressWarnings("serial")
+@Data
+public class yearSortListDto implements Serializable {
+	
+	private String townName;
+	private String townId;
+	private String townType;
+	private float area;
+	private float invest;
+	private float score;
+	private Integer sort1;
+	private float allInvest;
+	private Integer sort2;
+	private Integer count;
+	private Integer kaigong;
+	private float kaigonglv;
+	private Integer sort3;
+	private Integer weikaigong;
+	
+}

@@ -1,0 +1,59 @@
+package com.zklcsoftware.ganzhoubaobiao.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.zklcsoftware.basic.service.impl.BaseServiceImpl;
+import com.zklcsoftware.ganzhoubaobiao.domain.TProject;
+import com.zklcsoftware.ganzhoubaobiao.dto.DataDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProStageSchedDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectSchoolDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectVueDTO;
+import com.zklcsoftware.ganzhoubaobiao.repository.TProjectRepository;
+import com.zklcsoftware.ganzhoubaobiao.service.TProjectService;
+
+@Service
+@Transactional
+public class TProjectServiceImpl extends BaseServiceImpl<TProject, Integer> implements TProjectService {
+
+    @Autowired
+    private TProjectRepository tProjectRepository;
+    
+    @Override
+    public Page<TProjectVueDTO> findByParams(HashMap<String, Object> params, Pageable pageable) {
+        
+        return tProjectRepository.findByParams(params, pageable);
+    }
+
+    @Override
+    public List<DataDTO> findProjectYears() {
+        
+        return tProjectRepository.findProjectYears();
+    }
+
+    @Override
+    public TProjectVueDTO findTotalProjectDetail(HashMap<String, Object> params) {
+        
+        return tProjectRepository.findTotalProjectDetail(params);
+    }
+
+    @Override
+    public Page<TProjectSchoolDTO> findProjectSchoolList(HashMap<String, Object> params, Pageable pageable) {
+        
+        return tProjectRepository.findProjectSchoolList(params, pageable);
+    }
+
+    @Override
+    public List<TProStageSchedDTO> findProjectSchedule(HashMap<String, Object> params) {
+        
+        return tProjectRepository.findProjectSchedule(params);
+    }
+
+	
+}

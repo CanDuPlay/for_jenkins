@@ -1,0 +1,90 @@
+package com.zklcsoftware.ganzhoubaobiao.domain;
+
+import java.util.Date;
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.zklcsoftware.basic.model.AbstractBaseDomain;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@SuppressWarnings("serial")
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name="t_town_submit")
+@ApiModel(value = "TTownSubmit", description = "")
+public class TTownSubmit extends AbstractBaseDomain {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	id;
+	
+	@Column(name="town_id")
+	@ApiModelProperty(value = "区县id")
+	@Length(max=10,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	townId;
+	
+	@Column(name="is_submit")
+	@ApiModelProperty(value = "是否提交")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	isSubmit;
+	
+	@Column(name="file_url")
+	@ApiModelProperty(value = "文件路径")
+	@Length(max=50,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	fileUrl;
+	
+	@Column(name="submit_time")
+	@ApiModelProperty(value = "提交时间")
+	@JsonView(WithoutView.class)
+	private Date submitTime;
+	
+	@Column(name="collect_id")
+	@ApiModelProperty(value = "数据收集id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer collectId;
+	
+	@Column(name="remind_count")
+	@ApiModelProperty(value = "提醒次数")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer remindCount;
+	
+	@Transient
+	private String name; //接收人姓名
+	
+	@Transient
+	private String townName; //区县名称
+	
+	@Transient
+	private String phone; //联系电话
+	
+}

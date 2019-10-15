@@ -1,0 +1,26 @@
+package com.zklcsoftware.ganzhoubaobiao.repository;
+
+import java.util.HashMap;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import com.zklcsoftware.basic.repository.BaseRepositoryExt;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectVueDTO;
+
+/**
+ * Service Interface:TProject
+ * @author administrator
+ * @date 2019-3-18
+ */
+public interface TProjectRepositoryExt extends BaseRepositoryExt {
+	
+    /**
+     * 
+    * @author lipanlong
+    * @Title: findByParams  
+    * @Description: 查询教科室项目列表  
+     */
+    Page<TProjectVueDTO> findByParams(HashMap<String, Object> params, Pageable pageable);
+    
+}

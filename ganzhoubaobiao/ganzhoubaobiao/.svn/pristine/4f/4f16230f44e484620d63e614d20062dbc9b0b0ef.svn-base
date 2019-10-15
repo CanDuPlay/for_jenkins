@@ -1,0 +1,38 @@
+package com.zklcsoftware.ganzhoubaobiao.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolFile;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolInverted;
+
+import lombok.Data;
+
+@SuppressWarnings("serial")
+@Data
+public class checkListDto implements Serializable {
+	private Integer tProjectSchoolId;
+	private String schoolName;
+	private String townId;
+	private String schoolType;
+	private Double area;
+	private Integer newBuild;
+	private Double invest;
+	private String startYear;
+	private String endYear;
+	private Double allInvest;
+	private List<TSchoolFile> fileList;
+	private List<TSchoolInverted> invertedList;
+	private List<scheduleListDto> scheduleList;
+	private String reward;
+	private String level;//1市级2区级3学校
+	private Integer status;
+	private Integer schedule;//学校当前进度
+	private Integer tProjectStage;//当前阶段
+	private Integer sort;
+	private String zrdw;
+	private String lxld;
+	private String zfz;//市总负责人
+	private String month;//市总负责人
+	
+}

@@ -1,0 +1,29 @@
+package com.zklcsoftware.ganzhoubaobiao.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+import lombok.Data;
+
+/**
+ * 前台组装数据辅助类
+ * @author 
+ *
+ */
+@SuppressWarnings("serial")
+@Data
+public class TProjectCreateDTO implements Serializable{
+
+	private String id;
+	
+	private String name;
+	
+	private String plan;
+	
+	private String isDao;
+	
+	private boolean isAdd;
+	
+	private List<DataDTO> flowPath;
+	
+}

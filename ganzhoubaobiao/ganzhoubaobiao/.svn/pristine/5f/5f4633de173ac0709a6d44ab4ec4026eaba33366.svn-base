@@ -1,0 +1,28 @@
+package com.zklcsoftware.common.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolFile;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolInverted;
+
+import lombok.Data;
+
+@SuppressWarnings("serial")
+@Data
+public class checkListDto implements Serializable {
+
+	private String schoolName;
+	private String schoolType;
+	private float area;
+	private Integer newBuild;
+	private float invest;
+	private String startYear;
+	private String endYear;
+	private float allInvest;
+	private List<TSchoolFile> fileList;
+	private List<TSchoolInverted> invertedList;
+	private List<scheduleListDto> scheduleList;
+	private String reward;
+	
+}

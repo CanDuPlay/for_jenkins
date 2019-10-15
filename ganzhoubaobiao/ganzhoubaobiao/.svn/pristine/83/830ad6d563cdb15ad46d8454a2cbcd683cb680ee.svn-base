@@ -1,0 +1,28 @@
+#系统中使用到的原生sql查询
+nativesql: 
+  sqls: 
+    checkStatusList: |
+        select tss.* from t_school_schedule tss left join t_project_school tps on tss.t_project_school_id = tps.id
+        where 1=1 and status = :status
+        <#if schoolId?has_content>
+            and tss.t_project_school_id =:schoolId
+        </#if>
+        <#if townId?has_content>
+            and tps.town_id =:townId
+        </#if>
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+############ duzhihui start 2019年3月19日09:00:00 ############
+    queryProcedureList: |
+        SELECT tpy.id, tpy.name, tpy.create_time FROM t_procedure_type tpy 
+        WHERE 1=1
+        <#if name?has_content>
+            AND tpy.name LIKE %:name%
+        </#if>
+    queryProcedureListCount: |
+        SELECT count(*) FROM t_procedure_type tpy
+        WHERE 1=1
+        <#if name?has_content>
+            AND tpy.name LIKE %:name%
+        </#if>

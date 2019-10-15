@@ -1,0 +1,52 @@
+package com.zklcsoftware.common.web.util;
+
+public class ConstantUtil {
+
+	/**
+	 * API调用反馈消息代码定义—成功.
+	 */
+	public final static int OPT_RESULT_CODE_SUCCESS = 0;
+	/**
+	 * API调用反馈消息代码定义—失败.
+	 */
+	public final static int OPT_RESULT_CODE_FAIL = -1;
+	/**
+	 * API调用反馈消息代码定义—警告.
+	 */
+	public final static int OPT_RESULT_CODE_WARNING = -2;
+	/**
+	 * API调用反馈消息代码定义—登录超时.
+	 */
+	public final static int OPT_RESULT_CODE_SESSION_TIMEOUT = 1;
+	
+	/**
+	 * 区县pcode
+	 */
+	public final static String PCODE_100 = "100";
+	
+	/**
+	 * 阶段颜色数组
+	 */
+	public final static String[] colors = {"","","","","","","","",""};
+	
+	/**
+	 * 管理员审计记录 登录
+	 */
+	public final static Integer SIGN_IN = 10001;
+
+	/**
+	 * 管理员审计记录 创建
+	 */
+	public final static Integer CREATE_ACCOUNT = 10002;
+
+	/**
+	 * 管理员审计记录 删除
+	 */
+	public final static Integer DELETE_ACCOUNT = 10003;
+	
+	/**
+	 * 市局科室角色
+	 */
+	public final static Integer CITY_BUREAU = 11111;
+
+}

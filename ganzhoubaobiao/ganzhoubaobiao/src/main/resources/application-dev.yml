@@ -1,0 +1,37 @@
+server:
+  port: 9215
+  context-path: /ganzhoubaobiao
+  tomcat:
+    max-threads: 20
+  session:
+    cookie: 
+       name: ganzhoubaobiao-DEV-SESSION
+# 日志配置
+logging:
+  level:
+    #ROOT: ERROR
+    com: INFO
+    org: INFO
+            
+spring:
+  datasource: 
+    url: jdbc:mysql://192.168.100.188:3306/ganzhoubaobiao?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: zklc0612
+    driverClassName: com.mysql.jdbc.Driver
+security:
+  oauth2:
+    client:
+      clientId: ganzhoubaobiao
+      clientSecret: 4f9e9bb62179423ba1076f8e9b3d61d7
+      accessTokenUri: http://192.168.100.188/schoolcloud-oauthserver/oauth/token
+      userAuthorizationUri: http://192.168.100.188/schoolcloud-oauthserver/oauth/authorize
+      clientAuthenticationScheme: header
+    resource:
+      userInfoUri: http://192.168.100.188/schoolcloud-oauthserver/api/userinfo
+      filter-order: 3
+ #swgger配置
+sys:
+   swagger:
+      #swgger启用标识  true启用 false不启用
+      enable-swgger: true

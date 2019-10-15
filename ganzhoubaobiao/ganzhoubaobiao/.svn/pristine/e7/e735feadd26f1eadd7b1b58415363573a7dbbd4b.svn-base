@@ -1,0 +1,249 @@
+package com.zklcsoftware.common.web.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+
+import com.zklcsoftware.ganzhoubaobiao.domain.TProcedure;
+import com.zklcsoftware.ganzhoubaobiao.domain.TTownSubmit;
+import com.zklcsoftware.ganzhoubaobiao.domain.TUserRole;
+import com.zklcsoftware.ganzhoubaobiao.dto.PreviewBodyDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.PreviewTdDTO;
+import com.zklcsoftware.ganzhoubaobiao.service.TProcedureService;
+import com.zklcsoftware.ganzhoubaobiao.service.TTownSubmitService;
+import com.zklcsoftware.ganzhoubaobiao.service.TUserRoleService;
+
+
+public class SXSSFWorkBookUtil {
+	
+	public static void exportExcelInfo(Integer id, List<PreviewTdDTO> headerList, String filePath, String userId,
+				List<PreviewBodyDTO> dataset, HttpServletResponse response, HttpServletRequest request) {
+			try {
+				String fileUrl = null;
+				TUserRoleService tUserRoleService = SpringUtil.getBean(TUserRoleService.class);
+				TTownSubmitService tTownSubmitService = SpringUtil.getBean(TTownSubmitService.class);
+				TUserRole tUserRole = tUserRoleService.findByUserId(userId);
+				List<TTownSubmit> townSubmitlist = tTownSubmitService.findByCollectId(id);
+				for (TTownSubmit tTownSubmit : townSubmitlist) {
+					if(null != tUserRole.getTownId() && null != tTownSubmit.getTownId() && tTownSubmit.getTownId().equals(tUserRole.getTownId())) {
+						fileUrl = tTownSubmit.getFileUrl();
+					}
+				}
+				// 文件名称
+				String fileName = getFileName(".xls");
+				
+				if(!StringUtils.isEmpty(fileUrl)) {
+					fileName = fileUrl;
+				}else{
+					TTownSubmit tTownSubmit = tTownSubmitService.findByCollectIdAndTownId(id, tUserRole.getTownId());
+					tTownSubmit.setFileUrl(fileName);
+					tTownSubmit.setIsSubmit(1);
+					tTownSubmit.setSubmitTime(new Date());
+					tTownSubmitService.save(tTownSubmit);
+				}
+				
+				// 声明一个工作薄
+				HSSFWorkbook workbook = new HSSFWorkbook();
+				// 生成一个表格
+				HSSFSheet sheet = workbook.createSheet();
+				// 设置表格默认列宽度为15个字节
+				sheet.setDefaultColumnWidth((short) 18);
+				HSSFRow row = sheet.createRow(0);
+				// 表头数据
+				int c = 0;
+				for (PreviewTdDTO header : headerList) {
+					if(!StringUtils.isEmpty(header.getLabel())) {
+						HSSFCell cell = row.createCell(c);
+						HSSFRichTextString text = new HSSFRichTextString(header.getLabel());
+						cell.setCellValue(text);
+						c++;
+					}
+				}
+				// 遍历集合数据，产生数据行
+				Iterator it = dataset.iterator();
+				int index = 0;
+				while (it.hasNext()) {
+					index++;
+					row = sheet.createRow(index);
+					PreviewBodyDTO t = (PreviewBodyDTO) it.next();
+					List<PreviewTdDTO> body = t.getBody();
+					int k = 0;
+					for (PreviewTdDTO previewTdDTO : body) {
+						
+						if(!StringUtils.isEmpty(previewTdDTO.getLabel())) {
+							HSSFCell cell = row.createCell(k);
+							HSSFRichTextString richString = new HSSFRichTextString(previewTdDTO.getLabel());
+							HSSFFont font3 = workbook.createFont();
+							richString.applyFont(font3);
+							cell.setCellValue(richString);
+							k++;
+						}
+					}
+						
+				}
+	
+				// 下载
+				String disposition = "";
+				if (request.getHeader("USER-AGENT").toLowerCase().indexOf("firefox") > 0 ? false : true) {
+					if (request.getHeader("USER-AGENT").toLowerCase().indexOf("safari") > 0) {
+						disposition = "attachment;filename=" + new String((fileName).getBytes(), "ISO-8859-1");
+					} else {
+						disposition = "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8");
+					}
+				} else {
+					disposition = "attachment;filename=" + new String((fileName).getBytes(), "ISO-8859-1");
+				}
+				response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+				response.setHeader("Content-Disposition", disposition);
+				response.flushBuffer();
+				workbook.write(response.getOutputStream());
+				workbook.getBytes();
+				File file = new File(filePath + fileName);
+				file.createNewFile();
+				FileOutputStream stream= FileUtils.openOutputStream(file);
+				workbook.write(stream);
+				stream.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	
+	public static void exportProcedureExcelInfo(String proName, String [] headers, List<TProcedure> procedureList, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			TProcedureService tProcedureService = SpringUtil.getBean(TProcedureService.class);
+			// 声明一个工作薄
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			// 生成一个表格
+			HSSFSheet sheet = workbook.createSheet();
+			// 设置表格默认列宽度为15个字节
+			sheet.setDefaultColumnWidth((short) 18);
+			HSSFRow firstRow = sheet.createRow(0);
+			// 表头数据
+			HSSFCell cell = null;
+			for (short i = 0; i < headers.length; i++) {
+				// 合并头部
+				sheet.addMergedRegion(new CellRangeAddress(0, 1, i, i));
+				cell = firstRow.createCell(i);
+				HSSFRichTextString text = new HSSFRichTextString(headers[i]);
+				cell.setCellValue(text);
+			}
+			// 遍历集合数据，产生数据行
+			Iterator it = procedureList.iterator();
+			TProcedure tProcedure = null;
+			int index = 1;
+			while (it.hasNext()) {
+				index++;
+				firstRow = sheet.createRow(index);
+				tProcedure = (TProcedure) it.next();
+				HSSFCell create0 = firstRow.createCell(0);
+				if(null != tProcedure.getPid()) {
+					TProcedure procedure = tProcedureService.findById(tProcedure.getPid());
+					create0.setCellValue((index-1) +"、"+ procedure.getName()+"-"+tProcedure.getAliasName());
+				}else{
+					create0.setCellValue((index-1) +"、"+ tProcedure.getName()+"-"+tProcedure.getAliasName());
+				}
+				HSSFCell create1 = firstRow.createCell(1);
+				create1.setCellValue(tProcedure.getDepartment());
+				HSSFCell create2 = firstRow.createCell(2);
+				create2.setCellValue(tProcedure.getMaterial());
+				HSSFCell create3 = firstRow.createCell(3);
+				create3.setCellValue(tProcedure.getTimeLimit());
+				HSSFCell create4 = firstRow.createCell(4);
+				create4.setCellValue(tProcedure.getCost());
+				HSSFCell create5 = firstRow.createCell(5);
+				create5.setCellValue(tProcedure.getRemark());
+			}
+			// 下载
+			String disposition = "";
+			if (request.getHeader("USER-AGENT").toLowerCase().indexOf("firefox") > 0 ? false : true) {
+				if (request.getHeader("USER-AGENT").toLowerCase().indexOf("safari") > 0) {
+					disposition = "attachment;filename=" + new String((proName + ".xls").getBytes(), "ISO-8859-1");
+				} else {
+					disposition = "attachment;filename=" + URLEncoder.encode(proName + ".xls", "UTF-8");
+				}
+			} else {
+				disposition = "attachment;filename=" + new String((proName + ".xls").getBytes(), "ISO-8859-1");
+			}
+			response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+			response.setHeader("Content-Disposition", disposition);
+			response.flushBuffer();
+			workbook.write(response.getOutputStream());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+		// 拼接文件名字
+		public static String getFileName(String title) {
+			// 文件名获取
+			Date date = new Date();
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+			String fileName = format.format(date) + title;
+			return fileName;
+		}
+		
+		//服务器使客户端可以从远程url下载文件  
+		public void download(String fileUrl, HttpServletResponse response,HttpServletRequest request) throws IOException {  
+	        String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") +1, fileUrl.length());// 文件名称  
+	        //1.设置文件ContentType类型，这样设置，会自动判断下载文件类型  
+	        response.setContentType("application/octet-stream");  
+	        //2.设置文件头：最后一个参数是设置下载文件名  
+//	        response.setHeader("Content-Disposition", "attachment;fileName="+java.net.URLEncoder.encode(fileName, "UTF-8"));  
+	        ServletOutputStream out;  
+	        
+			if (fileName != null) {
+				String ua = request.getHeader("User-Agent");
+				if (ua != null && (ua.indexOf("MSIE") != -1 || (ua.indexOf("like Gecko") != -1) && ua.indexOf("Trident") != -1)) {
+					fileName = java.net.URLEncoder.encode(fileName, "UTF-8");
+				} else {
+					fileName = new String(fileName.getBytes(), "ISO8859-1");
+				}
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+			}
+
+	        //通过文件路径获得File对象  
+	        File file = new File(fileUrl);  
+	  
+	        try {  
+	            FileInputStream inputStream = new FileInputStream(file);  
+	  
+	            out = response.getOutputStream();  
+	  
+	            byte[] buffer = new byte[1024 * 1024]; 
+	        	int byteread = 0;
+	        	int bytesum = 0;
+	            while ((byteread = inputStream.read(buffer)) != -1){  
+	            	bytesum += byteread;
+	    			out.write(buffer, 0, byteread);
+	    			out.flush();
+	            }  
+	            inputStream.close();  
+	            out.close(); 
+	  
+	        } catch (IllegalStateException e) {  
+	            e.printStackTrace();  
+	        } finally {
+//	        	file.delete();//删除原始文件
+	        }
+	    }
+}

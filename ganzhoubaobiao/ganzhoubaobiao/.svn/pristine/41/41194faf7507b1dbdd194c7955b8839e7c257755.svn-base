@@ -1,0 +1,119 @@
+package com.zklcsoftware.ganzhoubaobiao.web.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.zklcsoftware.basic.model.PageWrapper;
+import com.zklcsoftware.common.dto.OperaResult;
+import com.zklcsoftware.common.web.ExtBaseController;
+import com.zklcsoftware.common.web.util.ConstantUtil;
+import com.zklcsoftware.ganzhoubaobiao.domain.TDictionary;
+import com.zklcsoftware.ganzhoubaobiao.domain.TProcedure;
+import com.zklcsoftware.ganzhoubaobiao.domain.TProcedureType;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectVueDTO;
+import com.zklcsoftware.ganzhoubaobiao.service.TDictionaryService;
+import com.zklcsoftware.ganzhoubaobiao.service.TProcedureService;
+import com.zklcsoftware.ganzhoubaobiao.service.TProcedureTypeService;
+
+/**
+ * 项目设置控制层
+ * @author duzhihui 2019年3月18日14:00:00
+ *
+ */
+@Slf4j
+@Controller
+@RequestMapping(path={"","/api"})
+public class ProjectSomeSettingsController extends ExtBaseController{
+
+	@Autowired
+	private TProcedureService tProcedureService;
+	
+	@Autowired
+	private TDictionaryService tDictionaryService;
+	
+	@Autowired
+	private TProcedureTypeService tProcedureTypeService;
+	
+	@ApiOperation(value = "市局创建项目", notes = "市局创建项目")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "project", value = "项目对象", required = false, dataType = "Object", paramType = "query"),
+	@ApiImplicitParam(paramType = "query", name = "access_token")
+	})
+	@RequestMapping(value = "/web/createProject", method = {RequestMethod.POST})
+	@ResponseBody
+	public OperaResult createProject(OperaResult result, TProjectVueDTO project) {
+		if(null == project) {
+			project = new TProjectVueDTO();
+		}
+		if(null == project.getId()) { //新增操作
+			// 选择程序流程 
+			
+			//新增工程阶段  阶段中新增进度  进度可修改、排序、删除  
+			
+			//进度对应着程序流程的一项或多项
+			
+			//操作区县范围  全删了重建
+		} else { //更新
+				
+		}
+	    return result;
+	}
+	
+	@ApiOperation(value = "查询程序流程", notes = "查询程序流程")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "procedureId", value = "程序流程id", required = false, dataType = "Integer", paramType = "query"),
+	@ApiImplicitParam(paramType = "query", name = "access_token")
+	})
+	@RequestMapping(value = "/web/queryProcedure", method = {RequestMethod.POST})
+	@ResponseBody
+	public OperaResult queryProcedure(OperaResult result, Integer procedureId) {
+		List<TProcedure> procedureList = tProcedureService.findByTProcedureTypeId(procedureId);
+		for (TProcedure tProcedure : procedureList) {
+			//组装树
+		}
+		return result;
+	}
+	
+	@ApiOperation(value = "查询区县", notes = "查询区县范围")
+	@ApiImplicitParams({
+		@ApiImplicitParam(paramType = "query", name = "access_token")
+	})
+	@RequestMapping(value = "/web/queryTownInfo", method = {RequestMethod.POST})
+	@ResponseBody
+	public OperaResult queryTownInfo(OperaResult result) {
+		List<TDictionary> tDictionaryList = tDictionaryService.findByPcode(ConstantUtil.PCODE_100);
+		result.getContent().put("tDictionaryList", tDictionaryList);
+		return result;
+	}
+	
+	@ApiOperation(value = "查询程序流程类型列表", notes = "查询程序流程类型列表")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "name", value = "程序流程类型名称", required = false, dataType = "String", paramType = "query"),
+		@ApiImplicitParam(paramType = "query", name = "access_token")
+	})
+	@RequestMapping(value = "/web/queryProcedureList", method = {RequestMethod.POST})
+	@ResponseBody
+	public OperaResult queryProcedureList(OperaResult result, String name, @PageableDefault Pageable pageable) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("name", name);
+		Page<TProcedureType> page = tProcedureTypeService.queryProcedureList(params, pageable);
+		result.getContent().put("page", new PageWrapper<TProcedureType>(page));
+		return result;
+	}
+	
+}

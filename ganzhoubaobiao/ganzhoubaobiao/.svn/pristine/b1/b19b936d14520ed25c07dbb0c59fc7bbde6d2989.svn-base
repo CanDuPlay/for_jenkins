@@ -1,0 +1,68 @@
+package com.zklcsoftware.ganzhoubaobiao.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.zklcsoftware.basic.service.impl.BaseServiceImpl;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolSchedule;
+import com.zklcsoftware.ganzhoubaobiao.dto.checkListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.scheduleListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.yearSortListDto;
+import com.zklcsoftware.ganzhoubaobiao.repository.TSchoolScheduleRepository;
+import com.zklcsoftware.ganzhoubaobiao.service.TSchoolScheduleService;
+
+@Service
+@Transactional
+public class TSchoolScheduleServiceImpl extends BaseServiceImpl<TSchoolSchedule, Integer> implements TSchoolScheduleService {
+
+	@Autowired 
+	private TSchoolScheduleRepository tSchoolScheduleRepository;
+	
+	@Override
+	public List<TSchoolSchedule> checkStatusList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkStatusList(params);
+	}
+	
+	@Override
+	public List<checkListDto> checkShijiList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkShijiList(params);
+	}
+	
+	@Override
+	public List<checkListDto> checkQujiList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkQujiList(params);
+	}
+	
+	@Override
+	public List<checkListDto> checkXuexiaoList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkXuexiaoList(params);
+	}
+	
+	@Override
+	public List<scheduleListDto> quxianScheduleList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.quxianScheduleList(params);
+	}
+	
+	@Override
+	public List<checkListDto> checkInfoShijiList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkInfoShijiList(params);
+	}
+	
+	@Override
+	public List<checkListDto> checkInfoQuxianList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkInfoQuxianList(params);
+	}
+	
+	@Override
+	public List<checkListDto> checkInfoXuexiaoList(Map<String, Object> params) {
+		return tSchoolScheduleRepository.checkInfoXuexiaoList(params);
+	}
+	
+	@Override
+	public yearSortListDto yearSort(Map<String, Object> params) {
+		return tSchoolScheduleRepository.yearSort(params);
+	}
+}

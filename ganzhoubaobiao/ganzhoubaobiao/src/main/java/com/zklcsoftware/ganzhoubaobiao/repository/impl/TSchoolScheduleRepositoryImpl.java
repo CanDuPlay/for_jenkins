@@ -1,0 +1,124 @@
+package com.zklcsoftware.ganzhoubaobiao.repository.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import com.zklcsoftware.basic.repository.BaseRepositoryExtImpl;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolSchedule;
+import com.zklcsoftware.ganzhoubaobiao.domain.TYearSort;
+import com.zklcsoftware.ganzhoubaobiao.dto.DataDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.MonthContrastCountDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.SchoolScheduleListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.YearDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.checkListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.scheduleListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.yearSortListDto;
+import com.zklcsoftware.ganzhoubaobiao.repository.TSchoolScheduleRepositoryExt;
+
+public class TSchoolScheduleRepositoryImpl extends BaseRepositoryExtImpl implements TSchoolScheduleRepositoryExt {
+	@Override
+	public List<TSchoolSchedule> checkStatusList(Map<String, Object> params) {
+		
+		return findListObj("checkStatusList", params, TSchoolSchedule.class);
+	}
+	
+	@Override
+	public List<checkListDto> checkShijiList(Map<String, Object> params,String type) {
+		if(type.equals("kanban")){
+			return findListObj("checkShijiList", params, checkListDto.class);
+		}else{
+			return findListObj("checkMonthShijiList", params, checkListDto.class);
+		}
+		
+	}
+	
+	@Override
+	public List<checkListDto> checkQujiList(Map<String, Object> params,String type) {
+		if(type.equals("kanban")){
+			return findListObj("checkQujiList", params, checkListDto.class);
+		}else{
+			return findListObj("checkMonthQujiList", params, checkListDto.class);
+		}
+	}
+	
+	@Override
+	public List<checkListDto> checkXuexiaoList(Map<String, Object> params,String type) {
+		if(type.equals("kanban")){
+			return findListObj("checkXuexiaoList", params, checkListDto.class);
+		}else{
+			return findListObj("checkMonthXuexiaoList", params, checkListDto.class);
+		}
+	}
+	
+	@Override
+	public List<scheduleListDto> quxianScheduleList(Map<String, Object> params) {
+		
+		return findListObj("quxianScheduleList", params, scheduleListDto.class);
+	}
+	
+	@Override
+	public List<checkListDto> checkInfoShijiList(Map<String, Object> params) {
+		
+		return findListObj("checkInfoShijiList", params, checkListDto.class);
+	}
+	
+	@Override
+	public List<checkListDto> checkInfoQuxianList(Map<String, Object> params) {
+		
+		return findListObj("checkInfoQuxianList", params, checkListDto.class);
+	}
+	
+	@Override
+	public List<checkListDto> checkInfoXuexiaoList(Map<String, Object> params) {
+		
+		return findListObj("checkInfoXuexiaoList", params, checkListDto.class);
+	}
+	
+	@Override
+	public yearSortListDto yearSort(Map<String, Object> params) {
+		
+		return findOneObj("yearSort", params, yearSortListDto.class);
+	}
+		
+	@Override
+	public List<scheduleListDto> kanbanCount(Map<String, Object> params) {
+		
+		return findListObj("kanbanCount", params, scheduleListDto.class);
+	}
+	
+	@Override
+	public MonthContrastCountDto monthContrastCount(Map<String, Object> params) {
+		
+		return findOneObj("monthContrastCount", params, MonthContrastCountDto.class);
+	}
+	
+	@Override
+	public List<TYearSort> yearSortJisuan(Map<String, Object> params) {
+		
+		return findListObj("yearSortJisuan", params, TYearSort.class);
+	}
+	
+	@Override
+	public List<YearDTO> queryYear(Map<String, Object> params) {
+		
+		return findListObj("queryYear", params, YearDTO.class);
+	}
+
+	@Override
+	public List<DataDTO> queryTownByProjectId(Map<String, Object> params) {
+		
+		return findListObj("queryTownByProjectId", params, DataDTO.class);
+	}
+
+	@Override
+	public List<SchoolScheduleListDto> querySchoolSchedule(Map<String, Object> params) {
+		
+		return findListObj("querySchoolSchedule", params, SchoolScheduleListDto.class);
+	}
+	
+	@Override
+	public List<scheduleListDto> queryStageCountForApp(Map<String, Object> params) {
+		
+		return findListObj("queryStageCountForApp", params, scheduleListDto.class);
+	}
+}

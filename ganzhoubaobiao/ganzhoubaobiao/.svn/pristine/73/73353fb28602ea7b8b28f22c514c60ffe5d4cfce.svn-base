@@ -1,0 +1,271 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for t_data_collect
+-- ----------------------------
+CREATE TABLE `t_data_collect` (
+  `id` int(11) NOT NULL,
+  `title` varchar(100) DEFAULT NULL COMMENT '标题',
+  `instruction` varchar(500) DEFAULT NULL COMMENT '说明',
+  `file_url` varchar(50) DEFAULT NULL COMMENT '文件路径',
+  `remind_way` varchar(20) DEFAULT NULL COMMENT '提醒方式',
+  `remind_content` varchar(500) DEFAULT NULL COMMENT '提醒内容',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of t_data_collect
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_dictionary
+-- ----------------------------
+CREATE TABLE `t_dictionary` (
+  `code` varchar(10) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `pcode` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='字典表';
+
+-- ----------------------------
+-- Records of t_dictionary
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_log
+-- ----------------------------
+CREATE TABLE `t_log` (
+  `id` int(11) NOT NULL,
+  `user_name` varchar(20) DEFAULT NULL COMMENT '操作人姓名',
+  `user_id` varchar(32) DEFAULT NULL COMMENT '操作人id',
+  `content` varchar(200) DEFAULT NULL COMMENT '操作内容',
+  `create_time` datetime DEFAULT NULL COMMENT '操作时间',
+  `type` int(11) DEFAULT NULL COMMENT '操作类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='日志表';
+
+-- ----------------------------
+-- Records of t_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_procedure
+-- ----------------------------
+CREATE TABLE `t_procedure` (
+  `id` int(11) NOT NULL,
+  `name` varchar(200) DEFAULT NULL COMMENT '办理程序名称',
+  `department` varchar(200) DEFAULT NULL COMMENT '办理部门',
+  `material` varchar(200) DEFAULT NULL COMMENT '需要的材料',
+  `time_limit` int(11) DEFAULT NULL COMMENT '办理工作时限',
+  `cost` float DEFAULT NULL COMMENT '报建费用',
+  `remark` varchar(200) DEFAULT NULL COMMENT '备注',
+  `sort` int(11) DEFAULT NULL COMMENT '排序',
+  `t_procedure_type_id` int(11) DEFAULT NULL COMMENT '程序流程类型id',
+  `pid` int(11) DEFAULT NULL COMMENT '父流程id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='程序流程表';
+
+-- ----------------------------
+-- Records of t_procedure
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_procedure_type
+-- ----------------------------
+CREATE TABLE `t_procedure_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='程序流程类型表';
+
+-- ----------------------------
+-- Records of t_procedure_type
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_project
+-- ----------------------------
+CREATE TABLE `t_project` (
+  `id` int(11) NOT NULL,
+  `name` varchar(500) DEFAULT NULL COMMENT '项目名称',
+  `start_time` datetime DEFAULT NULL COMMENT '开工时间',
+  `end_time` datetime DEFAULT NULL COMMENT '竣工时间',
+  `contacts` varchar(20) DEFAULT NULL COMMENT '总负责人',
+  `invest` float DEFAULT NULL COMMENT '规划总投资',
+  `finish_time` datetime DEFAULT NULL COMMENT '截至申报时间',
+  `procedure_type` int(11) DEFAULT NULL COMMENT '流程类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目表';
+
+-- ----------------------------
+-- Records of t_project
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_project_schedule
+-- ----------------------------
+CREATE TABLE `t_project_schedule` (
+  `id` int(11) NOT NULL,
+  `t_project_stage` int(11) DEFAULT NULL COMMENT '项目阶段id',
+  `name` varchar(200) DEFAULT NULL COMMENT '进度名称',
+  `t_procedure_id` int(11) DEFAULT NULL COMMENT '流程id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目进度表';
+
+-- ----------------------------
+-- Records of t_project_schedule
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_project_school
+-- ----------------------------
+CREATE TABLE `t_project_school` (
+  `id` int(11) NOT NULL,
+  `project_id` int(11) DEFAULT NULL COMMENT '项目id',
+  `school_name` varchar(100) DEFAULT NULL COMMENT '学校名称',
+  `school_type` varchar(10) DEFAULT NULL COMMENT '学校类型（字典）',
+  `area` float DEFAULT NULL COMMENT '建筑面积',
+  `new_build` int(11) DEFAULT NULL COMMENT '新建学位',
+  `invest` float DEFAULT NULL COMMENT '总投资',
+  `start_year` varchar(4) DEFAULT NULL COMMENT '开工年份',
+  `end_year` varchar(4) DEFAULT NULL COMMENT '竣工年份',
+  `now_schedule` int(11) DEFAULT NULL COMMENT '当前项目进度',
+  `reward` varchar(200) DEFAULT NULL COMMENT '重点说明情况',
+  `is_start` int(11) DEFAULT NULL COMMENT '是否开工',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目学校表';
+
+-- ----------------------------
+-- Records of t_project_school
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_project_stage
+-- ----------------------------
+CREATE TABLE `t_project_stage` (
+  `id` int(11) NOT NULL,
+  `project_id` int(11) DEFAULT NULL COMMENT '项目id',
+  `name` varchar(500) DEFAULT NULL COMMENT '阶段名称',
+  `is_daopai` int(11) DEFAULT NULL COMMENT '是否需要设置倒排时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目阶段表';
+
+-- ----------------------------
+-- Records of t_project_stage
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_project_town
+-- ----------------------------
+CREATE TABLE `t_project_town` (
+  `id` int(11) NOT NULL,
+  `project_id` int(11) DEFAULT NULL COMMENT '项目id',
+  `town_id` int(11) DEFAULT NULL COMMENT '区县id',
+  `accountability_unit` varchar(100) DEFAULT NULL COMMENT '责任单位',
+  `contacts` varchar(20) DEFAULT NULL COMMENT '联系领导',
+  `start_time` datetime DEFAULT NULL COMMENT '项目开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '项目结束时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目区县表';
+
+-- ----------------------------
+-- Records of t_project_town
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_role
+-- ----------------------------
+CREATE TABLE `t_role` (
+  `id` int(11) NOT NULL,
+  `name` varchar(20) DEFAULT NULL COMMENT '名称',
+  `if_check` int(11) DEFAULT NULL COMMENT '是否需要审核',
+  `status` int(11) DEFAULT NULL COMMENT '审批通过状态标识',
+  `type` int(11) DEFAULT NULL COMMENT '用户类别',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='角色表';
+
+-- ----------------------------
+-- Records of t_role
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_school_file
+-- ----------------------------
+CREATE TABLE `t_school_file` (
+  `id` int(11) NOT NULL,
+  `t_project_school_id` int(11) DEFAULT NULL COMMENT '项目学校表id',
+  `file_url` varchar(100) DEFAULT NULL COMMENT '文件路径',
+  `file_name` varchar(100) DEFAULT NULL COMMENT '文件名称',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学校资质表';
+
+-- ----------------------------
+-- Records of t_school_file
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_school_inverted
+-- ----------------------------
+CREATE TABLE `t_school_inverted` (
+  `id` int(11) NOT NULL,
+  `t_project_school_id` int(11) DEFAULT NULL COMMENT '项目学校id',
+  `name` varchar(200) DEFAULT NULL COMMENT '倒排工作名称',
+  `time` datetime DEFAULT NULL COMMENT '计划时间',
+  `is_finish` int(11) DEFAULT NULL COMMENT '是否完成',
+  `finish_time` datetime DEFAULT NULL COMMENT '完成时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学校倒排表';
+
+-- ----------------------------
+-- Records of t_school_inverted
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_school_schedule
+-- ----------------------------
+CREATE TABLE `t_school_schedule` (
+  `id` int(11) NOT NULL,
+  `t_project_school_id` int(11) DEFAULT NULL COMMENT '项目学校表id',
+  `t_project_schedule_id` int(11) DEFAULT NULL COMMENT '项目进度id',
+  `finish_time` datetime DEFAULT NULL COMMENT '完成时间',
+  `status` int(11) DEFAULT NULL COMMENT '审批流程状态',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学校项目进度表';
+
+-- ----------------------------
+-- Records of t_school_schedule
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_town_submit
+-- ----------------------------
+CREATE TABLE `t_town_submit` (
+  `id` int(11) NOT NULL,
+  `town_id` varchar(10) DEFAULT NULL COMMENT '区县id',
+  `is_submit` int(11) DEFAULT NULL COMMENT '是否提交',
+  `file_url` varchar(50) DEFAULT NULL COMMENT '文件路径',
+  `submit_time` datetime DEFAULT NULL COMMENT '提交时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of t_town_submit
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_user_role
+-- ----------------------------
+CREATE TABLE `t_user_role` (
+  `id` int(11) NOT NULL,
+  `user_id` varchar(32) DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
+  `town_id` varchar(10) DEFAULT NULL COMMENT '区县id（字典）',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户权限表';
+
+-- ----------------------------
+-- Records of t_user_role
+-- ----------------------------
+
+

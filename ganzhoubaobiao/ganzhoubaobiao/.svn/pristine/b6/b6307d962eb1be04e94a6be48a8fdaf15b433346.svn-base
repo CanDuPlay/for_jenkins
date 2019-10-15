@@ -1,0 +1,10 @@
+package com.zklcsoftware.ganzhoubaobiao.service;
+
+import com.zklcsoftware.basic.service.BaseService;
+import com.zklcsoftware.ganzhoubaobiao.domain.TProjectStage;
+
+public interface TProjectStageService extends BaseService<TProjectStage,Integer> {
+
+	TProjectStage findByProjectIdAndName(Integer projectId, String name);
+
+}

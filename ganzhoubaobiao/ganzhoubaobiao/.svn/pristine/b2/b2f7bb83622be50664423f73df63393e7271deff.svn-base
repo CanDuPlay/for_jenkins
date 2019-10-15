@@ -1,0 +1,81 @@
+package com.zklcsoftware.ganzhoubaobiao.domain;
+
+
+import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.zklcsoftware.basic.model.AbstractBaseDomain;
+import com.zklcsoftware.basic.model.AbstractBaseDomain.WithoutView;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@SuppressWarnings("serial")
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name="t_user_role")
+@ApiModel(value = "TUserRole", description = "用户权限表")
+public class TUserRole extends AbstractBaseDomain {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	id;
+	
+	@Column(name="user_id")
+	@Length(max=32,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	userId;
+	public static final String USERID = "userId";
+	
+	@Column(name="role_id")
+	@ApiModelProperty(value = "角色id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	roleId;
+	
+	@Column(name="town_id")
+	@ApiModelProperty(value = "区县id（字典）")
+	@Length(max=10,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	townId;
+	
+	@Column(name="create_time")
+	@ApiModelProperty(value = "创建时间")
+	@JsonView(WithoutView.class)
+	private Date createTime;
+	
+	@Transient
+	private String userName; //用户姓名
+	
+	@Transient
+	private String townName;
+	
+	@Transient
+	private String roleName;
+	
+}

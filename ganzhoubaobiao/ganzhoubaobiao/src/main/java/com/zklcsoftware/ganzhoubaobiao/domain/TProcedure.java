@@ -1,0 +1,98 @@
+package com.zklcsoftware.ganzhoubaobiao.domain;
+
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import org.hibernate.annotations.GenericGenerator;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonView;
+import org.hibernate.validator.constraints.Length;
+import com.zklcsoftware.basic.model.AbstractBaseDomain;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@SuppressWarnings("serial")
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name="t_procedure")
+@ApiModel(value = "TProcedure", description = "程序流程表")
+public class TProcedure extends AbstractBaseDomain {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	id;
+	
+	@Column(name="alias_name")
+	@ApiModelProperty(value = "办理程序别名")
+	@Length(max=200,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String aliasName;
+	
+	@Column(name="name")
+	@ApiModelProperty(value = "办理程序名称")
+	@Length(max=200,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String name;
+	
+	@Column(name="department")
+	@ApiModelProperty(value = "办理部门")
+	@Length(max=200,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	department;
+	
+	@Column(name="material")
+	@ApiModelProperty(value = "需要的材料")
+	@Length(max=200,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	material;
+	
+	@Column(name="time_limit")
+	@ApiModelProperty(value = "办理工作时限")
+	@Length(max=5,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String timeLimit;
+	
+	@Column(name="cost")
+	@ApiModelProperty(value = "报建费用")
+	@JsonView(WithoutView.class)
+	private Float cost;
+	
+	@Column(name="remark")
+	@ApiModelProperty(value = "备注")
+	@Length(max=200,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	remark;
+	
+	@Column(name="sort")
+	@ApiModelProperty(value = "排序")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	sort;
+	
+	@Column(name="t_procedure_type_id")
+	@ApiModelProperty(value = "程序流程类型id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	tProcedureTypeId;
+	
+	@Column(name="pid")
+	@ApiModelProperty(value = "父流程id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	pid;
+	
+}

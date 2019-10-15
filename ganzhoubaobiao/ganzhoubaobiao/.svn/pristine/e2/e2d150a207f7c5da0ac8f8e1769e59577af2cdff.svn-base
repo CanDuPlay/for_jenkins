@@ -1,0 +1,13 @@
+#系统中使用到的原生sql查询
+nativesql: 
+  sqls: 
+    updateStatus: |
+        update t_school_schedule tss left join t_project_school tps on tss.t_project_school_id = tps.id
+        set tss.status = :status
+        where 1=1
+        <#if schoolId?has_content>
+            and tss.t_project_school_id =:schoolId
+        </#if>
+        <#if townId?has_content>
+            and tps.t_project_school_id =:townId
+        </#if>

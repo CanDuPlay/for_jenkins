@@ -1,0 +1,204 @@
+package com.zklcsoftware.ganzhoubaobiao.web.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.zklcsoftware.common.dto.OperaResult;
+import com.zklcsoftware.common.web.ExtBaseController;
+import com.zklcsoftware.ganzhoubaobiao.domain.TLog;
+import com.zklcsoftware.ganzhoubaobiao.domain.TRole;
+import com.zklcsoftware.ganzhoubaobiao.domain.TUserRole;
+import com.zklcsoftware.ganzhoubaobiao.dto.MenuDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.TUserRoleDTO;
+import com.zklcsoftware.ganzhoubaobiao.service.TLogService;
+import com.zklcsoftware.ganzhoubaobiao.service.TRoleService;
+import com.zklcsoftware.ganzhoubaobiao.service.TUserRoleService;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Controller of TUserRoleController
+ * @author administrator
+ * @date 2019-3-18
+ */
+@Slf4j
+@Controller
+@RequestMapping(path={"","/api"})
+public class TUserRoleController extends ExtBaseController {
+	
+	@Autowired
+	private TUserRoleService tUserRoleService;
+	
+	@Autowired
+	private TLogService tLogService;
+	
+	@Autowired
+	private TRoleService tRoleService;
+	
+	@ApiOperation(value = "登录用户权限", notes = "登录用户权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/queryUserRole", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult queryUserRole(OperaResult result) {
+		String userId = getUserGuid();
+		TUserRole userRole = tUserRoleService.findByUserId(userId);
+		TUserRoleDTO userRoleDto = new TUserRoleDTO();
+		if(userRole!=null){
+			Map<String,Object> params = new HashMap<>();
+			params.put("roleId", userRole.getRoleId());
+			userRoleDto = tUserRoleService.findUserRole(params);
+			userRoleDto.setTownId(userRole.getTownId());
+			userRoleDto.setRoleId(userRole.getRoleId());
+		}		
+		result.getContent().put("userInfo", userRoleDto);
+        return result;
+    }
+	
+	@ApiOperation(value = "查询用户菜单", notes = "查询用户菜单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/queryUserMenu", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult queryUserMenu(OperaResult result) {
+		String userId = getUserGuid();
+		TUserRole userRole = tUserRoleService.findByUserId(userId);
+		String userScope = getUserScope();
+		
+		Map<String,Object> params = new HashMap<>();
+		TUserRoleDTO userRoleDto = new TUserRoleDTO();
+		if(userRole!=null){
+			params.put("roleId", userRole.getRoleId());
+			userRoleDto= tUserRoleService.findUserRole(params);
+		}
+				
+		//列表
+		List<MenuDTO> menuList = new ArrayList<>();
+		String url = "";
+				
+		MenuDTO m3 = new MenuDTO();
+		m3.setLabel("数据收集");
+<<<<<<< .mine
+		m3.setPath("/DataCollection");
+=======
+		m3.setPath("/DataCollection");
+		m3.setIcon("icon-menu-3");
+>>>>>>> .r231
+
+		MenuDTO m6 = new MenuDTO();
+		m6.setLabel("区县项目列表");
+		m6.setPath("/CountyProject");
+<<<<<<< .mine
+		
+		MenuDTO ms = new MenuDTO();
+		ms.setLabel("区县校建办数据提交");
+		ms.setPath("/CountyProject/SubmitData");
+=======
+		m6.setIcon("icon-menu-4");
+>>>>>>> .r231
+				
+		MenuDTO m1 = new MenuDTO();
+		m1.setLabel("项目");
+		m1.setPath("/CityProject");
+		m1.setIcon("icon-menu-4");
+		
+		MenuDTO m5 = new MenuDTO();
+		m5.setLabel("程序流程");
+		m5.setPath("/ProgramFlow");
+		m5.setIcon("icon-menu-1");
+		
+		MenuDTO m2 = new MenuDTO();
+		m2.setLabel("账号权限");
+		m2.setPath("/UserAuth");
+		m2.setIcon("icon-menu-5");
+		
+		MenuDTO m4 = new MenuDTO();
+		m4.setLabel("审计记录");
+		m4.setPath("/Record");
+		m4.setIcon("icon-menu-2");
+		
+		MenuDTO m7 = new MenuDTO();
+		m7.setLabel("市级科室账号分配");
+		m7.setPath("/CityAssignAccount");
+		m7.setIcon("icon-menu-5");
+		
+		if(userScope.equals("101007")){
+			menuList.add(m7);
+			menuList.add(m4);
+			menuList.add(m3);
+			url = "/CityAssignAccount";
+		}
+		if(userRole!=null){
+			if(userRoleDto.getType().equals("1")){
+				menuList.add(m6);
+				menuList.add(ms);
+				url = "/CountyProject";
+			}		
+					
+			if(userRole.getRoleId() == 110005){	
+				menuList.add(m1);
+				menuList.add(m5);
+				menuList.add(m2);
+				menuList.add(m4);
+				url = "/CityProject";
+			}
+		}
+				
+		result.getContent().put("list", menuList);
+		result.getContent().put("murl", url);
+		
+        return result;
+    }
+	
+	@ApiOperation(value = "查询日志", notes = "查询日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/queryLog", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult queryLog(OperaResult result,@PageableDefault Pageable pageable,
+            String startTime, String endTime, String roleId) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("roleId", roleId);
+        
+        Page<TLog> page = tLogService.queryLog(params, pageable);
+        
+        result.getContent().put("page", page);
+        
+        return result;
+    }
+	
+	@ApiOperation(value = "查询所有角色", notes = "查询所有角色")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/queryRole", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult queryRole(OperaResult result) {
+        log.info("查询所有角色");
+        List<TRole> list = tRoleService.findAll();
+        
+        result.getContent().put("list", list);
+        
+        return result;
+    }
+		
+}

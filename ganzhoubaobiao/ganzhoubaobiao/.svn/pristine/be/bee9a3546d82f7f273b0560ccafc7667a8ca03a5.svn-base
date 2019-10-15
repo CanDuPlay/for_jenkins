@@ -1,0 +1,18 @@
+package com.zklcsoftware.ganzhoubaobiao.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.zklcsoftware.basic.service.BaseService;
+import com.zklcsoftware.ganzhoubaobiao.domain.TUserRole;
+import com.zklcsoftware.ganzhoubaobiao.dto.TUserRoleDTO;
+
+public interface TUserRoleService extends BaseService<TUserRole,Integer> {
+
+	List<TUserRole> findByRoleId(Integer cityBureau);
+
+	TUserRole findByUserId(String userId);
+
+	TUserRoleDTO findUserRole(Map<String, Object> params);
+
+}

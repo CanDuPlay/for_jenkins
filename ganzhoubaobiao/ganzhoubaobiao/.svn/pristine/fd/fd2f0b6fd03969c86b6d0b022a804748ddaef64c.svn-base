@@ -1,0 +1,77 @@
+#系统中使用到的原生sql查询
+nativesql: 
+  sqls: 
+    checkStatusList: |
+        select tss.* from t_school_schedule tss left join t_project_school tps on tss.t_project_school_id = tps.id
+        where 1=1 and status = :status
+        <#if schoolId?has_content>
+            and tss.t_project_school_id =:schoolId
+        </#if>
+        <#if townId?has_content>
+            and tps.town_id =:townId
+        </#if>
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+############ duzhihui start 2019年3月19日09:00:00 ############
+    queryProcedureList: |
+        SELECT tpy.id, tpy.name, tpy.create_time FROM t_procedure_type tpy 
+        WHERE 1=1
+        <#if name?has_content>
+            AND tpy.name LIKE %:name%
+        </#if>
+    queryProcedureListCount: |
+        SELECT count(*) FROM t_procedure_type tpy
+        WHERE 1=1
+        <#if name?has_content>
+            AND tpy.name LIKE %:name%
+        </#if>
+############ duzhihui end 2019年3月19日09:00:00 ############
+############ yinyuqi start ############
+    checkXuexiaoList: |
+        select tps.school_name,tps.town_id,td1.`name` school_type,tps.area,tps.new_build,tps.invest,tps.start_year,tps.end_year,tps.reward,3 level from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if projectId?has_content>
+            and tps.town_id =:town_id
+        </#if>
+    checkQujiList: |
+        select td.`name` school_name,tps.town_id,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,2 level from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if projectId?has_content>
+            and tps.town_id =:town_id
+        </#if>
+        GROUP BY td.`name`,tps.town_id,td1.`name`
+    checkShijiList: |
+        select '全市' school_name,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,1 level from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+    quxianScheduleList: |
+        select tpse.`name`,tpsl.count,tpse.t_project_stage from t_project_schedule tpse
+        LEFT JOIN (
+        select now_schedule,COUNT(0) count 
+        from t_project_school 
+        where 1=1
+        <#if townId?has_content>
+            and town_id =:townId
+        </#if>
+        and project_id=:projectId group by now_schedule) tpsl ON tpsl.now_schedule = tpse.id
+        LEFT JOIN t_project_stage tpst ON tpse.t_project_stage = tpst.id
+        WHERE tpst.project_id=:projectId
+        ORDER BY tpse.t_project_stage,tpse.id
+############ yinyuqi end ############

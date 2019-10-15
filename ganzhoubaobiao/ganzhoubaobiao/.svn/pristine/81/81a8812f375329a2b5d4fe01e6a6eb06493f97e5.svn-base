@@ -1,0 +1,105 @@
+﻿{
+    "appName": "zklcsoftware/ganzhoubaobiao",
+    "appPortFlag": 1,
+    "isUserSchoolDataCenter":1,
+    "isUserSchoolFileCenter":1,
+    "memoryMaxLimit":1024,
+    "installType": "2",
+    "webUrl":"/logout",
+    "appPorts": [
+        {
+            "port": 9215,
+             "note": "应用WEB UI入口"
+        }
+    ],
+    "appRunArgs": [
+        {
+            "arg": "-Xmx800m",
+            "note": "指定内存最大量"
+        },
+        {
+            "arg": "-server",
+            "note": "服务器模式"
+        },
+        {
+            "arg": "-Djava.security.egd=file:/dev/./urandom",
+            "note": "系统访问路径"
+        },
+        {
+            "arg": "-Dserver.context-path=/@DEPLOY_BUILD_NAME@",
+            "note": "系统访问路径"
+        },
+        {
+            "arg": "-Dsecurity.oauth2.client.clientId=@SCHOOL_CLOUD_SSO_CLIENT@",
+            "note": "oauth2应用ID"
+        },
+         {
+            "arg": "-Dsecurity.oauth2.client.clientSecret=@SCHOOL_CLOUD_SSO_SECRET@",
+            "note": "oauth2应用密钥"
+        },
+    	{
+            "arg": "-Dsecurity.oauth2.client.accessTokenUri=@SCHOOL_CLOUD_NOHTTPS_SSO_URL@/oauth/token",
+            "note": "oauth2认证获取"
+        },
+        
+        {
+            "arg": "-Dsecurity.oauth2.client.userAuthorizationUri=@SCHOOL_CLOUD_SSO_URL@/oauth/authorize",
+            "note": "oauth2认证权限获取"
+        },
+        {
+            "arg": "-Dsecurity.oauth2.resource.userInfoUri=@SCHOOL_CLOUD_NOHTTPS_SSO_URL@/api/userinfo",
+            "note": "oauth2认证用户信息获取"
+        },
+        {
+            "arg": "-Dsys.messageSecret=@WEBDESKTOP_NOFITY_KEY@",
+            "note": "短信发送应用密钥"
+        },
+        {
+            "arg": "-Dclientpart.apiPath=@SCHOOL_CLOUD_NOHTTPS_NETNAME@/schoolcloud-webdesktop",
+            "note": "调用应用桌面接口"
+        },
+        {
+            "arg": "-Dspring.datasource.url=jdbc:mysql://@MYSQL_DATA_CENTER_URL@/@DEPLOY_BUILD_NAME@?useUnicode=true&characterEncoding=utf8",
+            "note": "数据库地址"
+        },
+        
+        {
+            "arg": "-Dspring.datasource.username=@MYSQL_DATA_CENTER_USERNAME@",
+            "note": "数据库username"
+        },
+        
+        {
+            "arg": "-Dspring.datasource.password=@MYSQL_DATA_CENTER_PASSWORD@",
+            "note": "数据库password"
+        },
+
+         {
+            "arg": "-Dsys.swagger.enable-swgger=false",
+            "note": "镜像包关闭swgger功能"
+        },
+         {
+            "arg": "-Duploadfiledir.uploadFilePath=@SCHOOL_CLOUD_NOHTTPS_NETNAME@/@DEPLOY_BUILD_NAME@/images",
+            "note": ""
+        },
+        {
+            "arg": "-jar",
+            "note": "指定java命令"
+        },
+        {
+            "arg": "/webapp/ganzhoubaobiao.jar",
+            "note": "指定启动的包"
+        }
+    ],
+    "appWidgets":[],
+    "appAuthoritys":[],
+    "command":"",
+    "fileVolumeFlag": 1,
+    "fileVolumes": [
+        {
+            "note": "文件上传路径",
+            "path": "/webapp/image/ganzhoubaobiao/"
+        }
+    ],
+    "version": "0.0.0.1",
+    "buildNumber": 1
+}

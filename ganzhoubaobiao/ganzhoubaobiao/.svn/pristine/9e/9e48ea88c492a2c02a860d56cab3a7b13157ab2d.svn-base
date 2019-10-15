@@ -1,0 +1,629 @@
+#系统中使用到的原生sql查询
+nativesql: 
+  sqls: 
+    checkStatusList: |
+        select tss.id,t_project_school_id school_id,tss.t_project_schedule_id schedule_id,tss.finish_time,tss.invest,tss.`status`,tss.reward  from t_school_schedule tss left join t_project_school tps on tss.t_project_school_id = tps.id
+        where 1=1 and status = :status and LEFT(finish_time,7)=:month
+        <#if schoolId?has_content>
+            and tss.t_project_school_id =:schoolId
+        </#if>
+        <#if townId?has_content>
+            and tps.town_id =:townId
+        </#if>
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+############ duzhihui start 2019年3月19日09:00:00 ############
+    queryProcedureList: |
+        SELECT tpy.id, tpy.name, tpy.create_time FROM t_procedure_type tpy 
+        WHERE 1=1
+        <#if name?has_content>
+            AND tpy.name LIKE %:name%
+        </#if>
+    queryProcedureListCount: |
+        SELECT count(*) FROM t_procedure_type tpy
+        WHERE 1=1
+        <#if name?has_content>
+            AND tpy.name LIKE %:name%
+        </#if>
+    findDataCollectList: |
+        SELECT dc.id, dc.title, dc.create_time FROM t_data_collect dc
+        WHERE 1=1
+        <#if title?has_content>
+            AND dc.title LIKE %:title%
+        </#if>
+        <#if orderBy?has_content>
+          <#if orderBy == 0>
+               ORDER BY dc.create_time DESC
+          </#if>
+          <#if orderBy == 1>
+               ORDER BY dc.create_time ASC
+          </#if>
+        </#if>
+    findDataCollectListCount: |
+        SELECT COUNT(*) FROM t_data_collect dc 
+        WHERE 1=1
+        <#if title?has_content>
+            AND dc.title LIKE %:title%
+        </#if>
+    viewSubmitCondition: |
+        SELECT tts.id, tea.`name`, tts.file_url, td.`name` town_name, tea.phone, tts.submit_time, tdc.id collect_id,
+        tts.is_submit, tts.remind_count FROM `t_town_submit` tts
+        LEFT JOIN t_dictionary td ON tts.town_id = td.`code`
+        LEFT JOIN t_data_collect tdc ON tts.collect_id = tdc.id
+        LEFT JOIN t_user_role tur ON tur.town_id = tts.town_id
+        LEFT JOIN t_teacher tea ON tur.user_id = tea.global_id
+        where 1=1 and tts.collect_id = :id
+        <#if params?has_content>
+            AND (tea.name like %:params% OR tea.phone = :params)
+        </#if>
+        <#if status?has_content>
+            AND tts.is_submit = :status
+        </#if>
+        <#if orderBy?has_content>
+            <#if orderBy == 0>
+               ORDER BY tts.submit_time DESC
+            </#if>
+            <#if orderBy == 1>
+               ORDER BY tts.submit_time ASC
+            </#if>
+        </#if>
+    viewSubmitConditionCount: |
+        SELECT count(*) FROM `t_town_submit` tts
+        LEFT JOIN t_dictionary td ON tts.town_id = td.`code`
+        LEFT JOIN t_data_collect tdc ON tts.collect_id = tdc.id
+        LEFT JOIN t_user_role tur ON tur.town_id = tts.town_id
+        LEFT JOIN t_teacher tea ON tur.user_id = tea.global_id
+        WHERE 1=1 and tts.collect_id = :id
+        <#if params?has_content>
+            AND (tea.name like %:params% OR tea.phone = :params)
+        </#if>
+        <#if status?has_content>
+            AND tts.is_submit = :status
+        </#if>
+    querySubmitDataList: |
+        SELECT tdc.id, tdc.title, tdc.create_time, tts.submit_time, tts.is_submit, tts.id submit_id from t_data_collect tdc
+        left join t_town_submit tts on tts.collect_id = tdc.id
+        left join t_user_role tur on tts.town_id = tur.town_id
+        where 1=1
+        <#if title?has_content>
+            and tdc.title like %:title%
+        </#if>
+        <#if userId?has_content>
+            and tur.user_id = :userId
+        </#if>
+        <#if orderByRelease?has_content>
+          <#if orderByRelease == 0>
+            ORDER BY tts.create_time DESC
+          </#if>
+          <#if orderByRelease == 1>
+            ORDER BY tts.create_time ASC
+          </#if>
+        </#if>
+        <#if orderBy?has_content>
+          <#if orderBy == 0>
+            ORDER BY tts.submit_time DESC
+          </#if>
+          <#if orderBy == 1>
+            ORDER BY tts.submit_time ASC
+          </#if>
+        </#if>
+    querySubmitDataListCount: |
+        SELECT count(*) from t_data_collect tdc
+        left join t_town_submit tts on tts.collect_id = tdc.id
+        left join t_user_role tur on tts.town_id = tur.town_id
+        where 1=1
+        <#if title?has_content>
+            and tdc.title like %:title%
+        </#if>
+        <#if userId?has_content>
+            and tur.user_id = :userId
+        </#if>
+############ duzhihui end 2019年3月19日09:00:00 ############
+############ yinyuqi  shujvkanban start ############
+    checkXuexiaoList: |
+        select tps.school_name,tps.town_id,td1.`name` school_type,tps.area,tps.new_build,tps.invest,tps.start_year,tps.end_year,tps.reward,3 level,tss.t_project_schedule_id schedule,tss.invest all_invest,tpsc.t_project_stage t_project_stage,tps.id,tss.status,tss.id schedule_id from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id,max(status) status,max(t.id) id FROM `t_school_schedule` t where LEFT(finish_time,7)=:month and status>=:status GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        where 1=1
+        <#if heshi?has_content>
+            <#if heshi=='1'>
+             and tss.status>:status
+            </#if>
+            <#if heshi=='2'>
+             and tss.status=:status
+            </#if>
+        </#if>
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if townId?has_content>
+            and tps.town_id =:townId
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        <#if schoolId?has_content>
+            and tps.id =:schoolId
+        </#if>
+    checkQujiList: |
+        select td.`name` school_name,tps.town_id,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,2 level,sum(tss.invest) all_invest,tpt.accountability_unit zrdw,tpt.contacts lxld,min(min_status) min_status from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id,MIN(t.status) min_status  FROM `t_school_schedule` t 
+        where LEFT(finish_time,7)=:month and status>=:status 
+        <#if heshi?has_content>
+            <#if heshi=='1'>
+             and status>:status
+            </#if>
+            <#if heshi=='2'>
+             and status=:status
+            </#if>
+        </#if>
+        GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        left join t_project_town tpt on tpt.town_id = tps.town_id and tpt.project_id = tp.id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if town_id?has_content>
+            and tps.town_id =:town_id
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        GROUP BY td.`name`,tps.town_id
+    checkShijiList: |
+        select '全市' school_name,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,1 level,sum(tss.invest) all_invest,tp.contacts zfz,min(min_status) min_status from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id,MIN(t.status) min_status  FROM `t_school_schedule` t 
+        where LEFT(finish_time,7)=:month 
+        and status>=:status 
+        <#if heshi?has_content>
+            <#if heshi=='1'>
+             and status>:status
+            </#if>
+            <#if heshi=='2'>
+             and status=:status
+            </#if>
+        </#if>
+        GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        <#if town_id?has_content>
+            and tps.town_id =:town_id
+        </#if>
+    checkMonthXuexiaoList: |
+        select tps.school_name,tps.town_id,td1.`name` school_type,tps.area,tps.new_build,tps.invest,tps.start_year,tps.end_year,tps.reward,3 level,tss.t_project_schedule_id schedule,tss.invest all_invest,tpsc.t_project_stage t_project_stage,tps.id from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t 
+        where LEFT(finish_time,7)<=:month and status>=:status 
+        GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if townId?has_content>
+            and tps.town_id =:townId
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        <#if schoolId?has_content>
+            and tps.id =:schoolId
+        </#if>
+    checkMonthQujiList: |
+        select td.`name` school_name,tps.town_id,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,2 level,sum(tss.invest) all_invest,tpt.accountability_unit zrdw,tpt.contacts lxld from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where LEFT(finish_time,7)<=:month and status>=:status GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        left join t_project_town tpt on tpt.town_id = tps.town_id and tpt.project_id = tp.id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if town_id?has_content>
+            and tps.town_id =:town_id
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        GROUP BY td.`name`,tps.town_id
+    checkMonthShijiList: |
+        select '全市' school_name,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,1 level,sum(tss.invest) all_invest,tp.contacts zfz from t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        LEFT JOIN t_project tp ON tps.project_id = tp.id
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where LEFT(finish_time,7)<=:month and status>=:status GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+    kanbanCount: |
+        select '' id,'项目总数' name,count(0) count from t_project_school tps
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where LEFT(finish_time,7)=:month and status>=:status GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        left join t_project_stage tpst on tpst.id = tpsc.t_project_stage
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        union all
+        select tpst.id,tpst.name,count(0) count from t_project_school tps
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where LEFT(finish_time,7)=:month and status>=:status GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        left join t_project_stage tpst on tpst.id = tpsc.t_project_stage
+        where 1=1
+        <#if projectId?has_content>
+            and tps.project_id =:projectId
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        group by tpst.id,tpst.name
+    quxianScheduleList: |
+        select tpse.`name`,tpsl.count,tpse.t_project_stage stage,tpse.id from t_project_schedule tpse
+        LEFT JOIN (
+        select tss.t_project_schedule_id now_schedule,COUNT(0) count 
+        from t_project_school tps
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where LEFT(finish_time,7)=:month and status>=:status GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        where 1=1
+        <#if townId?has_content>
+            and town_id =:townId
+        </#if>
+        <#if stage?has_content>
+            and tpsc.t_project_stage =:stage
+        </#if>
+        and tps.project_id=:projectId group by tss.t_project_schedule_id) tpsl ON tpsl.now_schedule = tpse.id
+        LEFT JOIN t_project_stage tpst ON tpse.t_project_stage = tpst.id
+        WHERE tpst.project_id=:projectId
+        ORDER BY tpse.t_project_stage,tpse.id
+    queryYear: |
+        select DISTINCT LEFT(tss.finish_time,4) value,LEFT(tss.finish_time,4) label from t_school_schedule tss
+        LEFT JOIN t_project_school tps ON tss.t_project_school_id = tps.id
+        WHERE tps.project_id = :projectId
+        order by LEFT(tss.finish_time,4) desc;
+############ yinyuqi shujvkanban end ############
+############ yinyuqi  shenhe start ############
+    checkInfoXuexiaoList: |
+        SELECT tps.school_name,tps.town_id,td1.`name` school_type,tps.area,tps.new_build,tps.invest,tps.start_year,tps.end_year,tps.reward,3 level,tss.t_project_schedule_id schedule,tss.invest all_invest,tpsc.t_project_stage t_project_stage,tss.status,tss.t_project_school_id school_id,tss.id schedule_id FROM t_school_schedule tss
+        LEFT JOIN t_project_school tps ON tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc ON tpsc.id = tss.t_project_schedule_id
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON tps.school_type = td1.`code`
+        WHERE tps.project_id = :projectId and LEFT(finish_time,7)=:month
+        <#if town_id?has_content>
+            and tps.town_id =:town_id
+        </#if>
+        AND tss.`status`>=:status  
+        <#if heshi?has_content>
+            <#if heshi=='1'>
+             and tss.status>:status
+            </#if>
+            <#if heshi=='2'>
+             and tss.status=:status
+            </#if>
+        </#if>
+    checkInfoQuxianList: |
+        SELECT td.`name` school_name,tps.town_id,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,2 level,sum(tss.invest) all_invest FROM t_school_schedule tss
+        LEFT JOIN t_project_school tps ON tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc ON tpsc.id = tss.t_project_schedule_id
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        WHERE tps.project_id = :projectId and LEFT(finish_time,7)=:month
+        <#if town_id?has_content>
+            and tps.town_id =:townId
+        </#if>
+        AND tss.`status`>=:status  
+        <#if heshi?has_content>
+            <#if heshi=='1'>
+             and tss.status>:status
+            </#if>
+            <#if heshi=='2'>
+             and tss.status=:status
+            </#if>
+        </#if>
+    checkInfoShijiList: |
+        SELECT '全市' school_name,count(0) school_type,sum(tps.area) area,sum(tps.new_build) new_build,sum(tps.invest) invest,2 level,tss.invest all_invest FROM t_school_schedule tss
+        LEFT JOIN t_project_school tps ON tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc ON tpsc.id = tss.t_project_schedule_id
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        WHERE tps.project_id = :projectId
+        AND tss.`status`=:status       
+        <#if heshi?has_content>
+            <#if heshi=='1'>
+             and tss.status>:status
+            </#if>
+            <#if heshi=='2'>
+             and tss.status=:status
+            </#if>
+        </#if>
+############ yinyuqi  shenhe end ############
+############ yinyuqi  niandupaiming start ############
+    yearSort: |
+        SELECT case when count(0)>0 then count(0) else null end count,SUM(tps.area) area,SUM(tps.invest) invest,SUM(tss.invest) all_invest FROM t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest FROM `t_school_schedule` t where YEAR(finish_time)=:year GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        WHERE tps.project_id = :projectId
+        <#if town_id?has_content>
+            and tps.town_id =:town_id
+        </#if>
+        <#if town_type?has_content>
+            and td.town_type =:town_type
+        </#if>
+    yearSortJisuan: |
+        SELECT tps.town_id,td.`name` town_name,td1.`code` town_type,td1.`name` town_type_name,
+        CASE WHEN count(0) > 0 THEN count(0) ELSE NULL END count,
+        sum(CASE WHEN tpst.sort = 1 then 1 else 0 end) weikaigong,
+        sum(CASE WHEN tpst.sort >= 2 then 1 else 0 end) kaigong,
+        CASE WHEN count(0) > 0 THEN ROUND(sum(CASE WHEN tpst.sort >= 2 then 1 else 0 end)/count(0)*100,2) ELSE NULL END kaigonglv,
+        SUM(tps.area) area,
+        SUM(tps.invest) invest,
+        SUM(tss.invest) all_invest
+        FROM
+        t_project_school tps
+        LEFT JOIN t_dictionary td ON tps.town_id = td.`code`
+        LEFT JOIN t_dictionary td1 ON td.town_type = td1.`code`
+        LEFT JOIN (
+        SELECT
+        t.t_project_school_id,
+        SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id 
+        FROM
+        `t_school_schedule` t
+        WHERE
+        YEAR (finish_time) = :year
+        GROUP BY
+        t.t_project_school_id
+        ) tss ON tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        left join t_project_stage tpst on tpst.id = tpsc.t_project_stage
+        WHERE
+        tps.project_id = :projectId
+        GROUP BY tps.town_id
+    monthContrastCount: |
+        select count(0) count,
+        sum(CASE WHEN tpst.sort = 1 then 1 else 0 end) wkg,
+        sum(CASE WHEN tpst.sort = 2 or tpst.sort = 3 then 1 else 0 end) kg,
+        sum(CASE WHEN tpst.sort = 3 then 1 else 0 end) sy
+        from t_project_school tps
+        left join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where LEFT(finish_time,7)<=:month GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        LEFT JOIN t_project_stage tpst ON tpst.id = tpsc.t_project_stage
+        where 1=1 and tps.project_id = :projectId
+    findByYearAndProjectIdAndTownTypeSort: |
+        SELECT tys.*,
+        @rownum:=@rownum+1 AS rownum,
+        if(@total=round(tys.count/:zxm*0.3+tys.area/:zmj*0.3+tys.all_invest/:ztz*0.4,4),@rank,@rank:=@rownum)as qunzhongfensort,
+        @total:=round(tys.count/:zxm*0.3+tys.area/:zmj*0.3+tys.all_invest/:ztz*0.4,4) qunzhongfen
+        from t_year_sort tys ,(SELECT @rank:=0,@rownum:=0,@total:=null) B
+        where tys.town_type = :town_type and tys.year = :year and tys.project_id = :projectId
+        ORDER BY round(tys.count/:zxm*0.3+tys.area/:zmj*0.3+tys.all_invest/:ztz*0.4,4) desc
+    findOrderByAllInvestDesc: |
+        SELECT tys.*,
+        @rownum:=@rownum+1 AS rownum,if(@total=tys.all_invest,@rank,@rank:=@rownum)as qunzhongfensort,@total:=tys.all_invest qunzhongfen
+        from t_year_sort tys ,(SELECT @rank:=0,@rownum:=0,@total:=null) B
+        where tys.year = :year and tys.project_id = :projectId
+        ORDER BY tys.all_invest desc;
+    findOrderByKaigonglvDesc: |
+        SELECT tys.*,
+        @rownum:=@rownum+1 AS rownum,if(@total=tys.kaigonglv,@rank,@rank:=@rownum)as qunzhongfensort,@total:=tys.kaigonglv qunzhongfen
+        from t_year_sort tys ,(SELECT @rank:=0,@rownum:=0,@total:=null) B
+        where tys.year = :year and tys.project_id = :projectId
+        ORDER BY tys.kaigonglv desc;
+    yearSortCount: |
+        SELECT SUM(tys.area) area,SUM(tys.all_invest) all_invest,
+        sum(tys.count) count,SUM(tys.invest) invest,SUM(tys.kaigong) kaigong,
+        SUM(tys.weikaigong) weikaigong FROM t_year_sort tys
+        where tys.year = :year and tys.project_id = :projectId        
+        <#if town_type?has_content>
+            and tys.town_type =:town_type
+        </#if>
+    findUserRole: |
+        SELECT tr.*,IFNULL(tr1.status,9) next_status,IFNULL(tr2.status,1) last_status from t_role tr
+        LEFT JOIN (SELECT *,:roleId sta from t_role where id>:roleId AND if_check=1 ORDER BY id LIMIT 1) tr1 ON tr1.sta = tr.id
+        LEFT JOIN (SELECT *,:roleId sta from t_role where id<:roleId AND if_check=1 ORDER BY id desc LIMIT 1) tr2 ON tr2.sta = tr.id
+        WHERE tr.id=:roleId
+    queryTownByProjectId: |
+        SELECT td.`code` id,td.`name` name from t_project_town tpt
+        LEFT JOIN t_dictionary td ON tpt.town_id = td.`code`
+        where tpt.project_id = :projectId
+    queryLog: |
+        SELECT tl.*,tr.name role_name from t_log tl 
+        LEFT JOIN t_user_role tur ON tl.user_id = tur.user_id
+        left join t_role tr on tur.role_id = tr.id
+        WHERE 1=1 
+        <#if startTime?has_content>
+         and LEFT(tl.create_time,10) >=:startTime
+        </#if>
+        <#if endTime?has_content> 
+         and LEFT(tl.create_time,10)<=:endTime
+        </#if>
+        <#if roleId?has_content> 
+         and tr.id=:roleId
+        </#if>
+        order by id desc
+    queryLogCount: |
+        SELECT count(*) from t_log tl 
+        left join t_role tr on tl.role_id = tr.id
+        WHERE 1=1 
+        <#if startTime?has_content>
+         and LEFT(tl.create_time,10) >=:startTime
+        </#if>
+        <#if endTime?has_content> 
+         and LEFT(tl.create_time,10)<=:endTime
+        </#if>
+        <#if roleId?has_content> 
+         and tr.id=:roleId
+        </#if>
+    querySchoolSchedule: |
+        select tss.id,tss.finish_time,tps.`name`,tss.invest from t_school_schedule tss 
+        LEFT JOIN t_project_schedule tps ON tss.t_project_schedule_id = tps.id WHERE tss.t_project_school_id =:schoolId
+    queryStageCountForApp: |
+        select tpst.id,tpst.name,count(0) count from t_project_school tps
+        inner join (SELECT t.t_project_school_id,SUM(t.invest) invest,MAX(t.`t_project_schedule_id`) t_project_schedule_id FROM `t_school_schedule` t where  status>=1 GROUP BY t.t_project_school_id) tss on tss.t_project_school_id = tps.id
+        LEFT JOIN t_project_schedule tpsc on tpsc.id = tss.t_project_schedule_id
+        left join t_project_stage tpst on tpst.id = tpsc.t_project_stage
+        where 1=1
+        and tps.project_id =:projectId
+        group by tpst.id,tpst.name
+############ yinyuqi  niandupaiming end ############
+############ lipanlong start ##############
+    findProjectByParams: |
+        SELECT YEAR(t.start_time),t.*,COUNT(t1.id) school_num from t_project t 
+        <#if townId?has_content>
+        LEFT JOIN t_project_town tp on t.id = tp.project_id 
+        </#if>
+        LEFT JOIN t_project_school t1 on t.id = t1.project_id 
+         where 1=1 
+        <#if year?has_content>
+            and YEAR(t.start_time) =:year
+        </#if>
+        <#if projectName?has_content>
+        and t.name like '%${projectName}%'
+        </#if>
+        <#if status?has_content>
+        and t.status =:status
+        </#if>
+        <#if townId?has_content>
+        AND tp.town_id =:townId AND t.`status` <> 4
+        </#if>
+        GROUP BY t.id ORDER BY t.id  
+    findProjectByParamsCount: |
+        SELECT count(a.id) from ( SELECT YEAR(t.start_time),t.*,COUNT(t1.id) school_num from t_project t 
+        <#if townId?has_content>
+        LEFT JOIN t_project_town tp on t.id = tp.project_id 
+        </#if> 
+        LEFT JOIN t_project_school t1 on t.id = t1.project_id where 1=1 
+        <#if year?has_content>
+            and YEAR(t.start_time) =:year
+        </#if>
+        <#if projectName?has_content>
+        and t.name like '%${projectName}%' 
+        </#if>
+        <#if status?has_content>
+        and t.status =:status
+        </#if>
+        <#if townId?has_content>
+        AND tp.town_id =:townId AND t.`status` <> 4
+        </#if>
+        GROUP BY t.id  ) a
+    findProjectYears: |
+        select distinct DATE_FORMAT(t.start_time,'%Y') id,DATE_FORMAT(t.start_time,'%Y') name from t_project t
+    findTotalProjectDetail: |
+        select t.id,t.`name`,SUM(t1.area) area,SUM(t1.new_build) new_build,SUM(t1.invest) invest,t.start_time,t.end_time,
+        SUM(ts.invest) total_invest,COUNT(t1.id) school_num,t.finish_time  
+        <#if schoolId?has_content>
+        ,t1.school_name 
+        </#if>
+        from t_project t left join t_project_school t1 on t.id = t1.project_id 
+        <#if townId?has_content>
+        AND t1.town_id =:townId  
+        </#if>
+        left join t_dictionary td on t1.town_id = td.`code` 
+        left join (select t_project_school_id,invest from t_school_schedule  GROUP BY t_project_school_id)ts on t1.id = ts.t_project_school_id 
+        where t.id =:projectId 
+        <#if schoolId?has_content>
+        AND t1.id =:schoolId 
+        </#if>
+        GROUP BY t.id
+        <#if townId?has_content>
+        ,t1.town_id
+        </#if>
+    findProjectSchoolList: |
+        select t.id project_id,t1.id,t1.town_id,td.`name` town_name,t1.school_name,tdd.`name` school_type,t1.area area,
+        t1.new_build new_build,t1.invest invest,t1.start_year start_year,t1.end_year end_year,
+        ts.id shen_bao,tt.`name` now_schedule,ts.`status` role_status, tt1.is_daopai,ts.id school_schedule_id,t1.id school_id,
+        tt2.name,tt2.phone,ttt.planinvest,t1.reward,t.`status` project_status from t_project t 
+        left join t_project_school t1 on t.id = t1.project_id 
+        left join t_project_stage tt1 on t.id = tt1.project_id
+        left join t_dictionary td on t1.town_id = td.`code` 
+        left join t_dictionary tdd on t1.school_type = tdd.`code` 
+        left join t_school_schedule ts on t1.id = ts.t_project_school_id AND DATE_FORMAT(ts.finish_time,'%Y-%m') =:year
+        LEFT JOIN (SELECT t.t_project_school_id school_id,SUM(t.invest) planinvest FROM `t_school_schedule` t GROUP BY t.t_project_school_id) ttt on ttt.school_id = t1.id
+        left join t_project_schedule tps on ts.t_project_schedule_id = tps.id 
+        left join t_project_stage tt on tps.t_project_stage = tt.id 
+        left join t_user_role tu on t1.town_id = tu.town_id and tu.role_id = 110001 
+        left join t_teacher tt2 on tu.user_id = tt2.global_id
+        where t.id =:projectId 
+        <#if townId?has_content>
+         AND t1.town_id =:townId 
+        </#if>
+        <#if schoolName?has_content>
+         and t1.school_name like '%${schoolName}%'
+        </#if>
+        <#if stage?has_content>
+         and tt.id =:stage
+        </#if>
+        <#if shenbao?has_content>
+          <#if shenbao=='1'>
+           and ts.id is not null
+          <#else>
+          and ts.id is null
+          </#if>
+        </#if>
+        GROUP BY t1.id  
+    findProjectSchoolListCount: |
+        SELECT count(a.id) from (select t1.id from t_project t 
+        left join t_project_school t1 on t.id = t1.project_id 
+        left join t_project_stage tt1 on t.id = tt1.project_id
+        left join t_dictionary td on t1.town_id = td.`code` 
+        left join t_dictionary tdd on t1.school_type = tdd.`code` 
+        left join t_school_schedule ts on t1.id = ts.t_project_school_id AND DATE_FORMAT(ts.finish_time,'%Y-%m') =:year 
+        LEFT JOIN (SELECT t.t_project_school_id school_id,SUM(t.invest) planinvest FROM `t_school_schedule` t GROUP BY t.t_project_school_id) ttt on ttt.school_id = t1.id 
+        left join t_project_schedule tps on ts.t_project_schedule_id = tps.id 
+        left join t_project_stage tt on tps.t_project_stage = tt.id
+        where t.id =:projectId 
+        <#if townId?has_content>
+         AND t1.town_id =:townId 
+        </#if>
+        <#if schoolName?has_content>
+        and t1.school_name like '%${schoolName}%'
+        </#if>
+        <#if stage?has_content>
+        and tt.id =:stage
+        </#if>
+        <#if shenbao?has_content>
+          <#if shenbao=='1'>
+           and ts.id is not null
+          <#else>
+          and ts.id is null
+          </#if>
+        </#if>
+        GROUP BY t1.id ) a 
+    findProjectSchedule: |
+        select t.id project_id,t.`name` project_name,tp.id,tp.`name` stage,ts.id schedule_id,ts.`name` schedule_name,
+        tts.start_time,tts.finish_time,tsc.invest  
+        from t_project t left join t_project_stage tp on t.id = tp.project_id 
+        left join t_project_schedule ts on tp.id = ts.t_project_stage 
+        left join t_project_town_schedule tts on t.id = tts.project_id and ts.id = tts.schedule_id 
+        <#if townId?has_content>
+        and tts.town_id =:townId 
+        </#if>
+        left join t_school_schedule tsc on tsc.t_project_schedule_id = ts.id
+        <#if schoolId?has_content>
+         and tsc.t_project_school_id =:schoolId
+        </#if>
+        where 1=1 and t.id =:projectId GROUP BY tp.id,ts.id ORDER BY tp.id
+    findByTownId: |
+        SELECT tt.* from t_user_role t left join t_teacher tt on t.user_id = tt.global_id where t.town_id =:townId
+############ lipanlong end   ##############

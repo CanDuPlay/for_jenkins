@@ -1,0 +1,496 @@
+package com.zklcsoftware.ganzhoubaobiao.web.controller;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.zklcsoftware.common.dto.OperaResult;
+import com.zklcsoftware.common.web.ExtBaseController;
+import com.zklcsoftware.common.web.util.ConstantUtil;
+import com.zklcsoftware.ganzhoubaobiao.domain.TDictionary;
+import com.zklcsoftware.ganzhoubaobiao.domain.TProjectSchool;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolFile;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolInverted;
+import com.zklcsoftware.ganzhoubaobiao.domain.TSchoolSchedule;
+import com.zklcsoftware.ganzhoubaobiao.domain.TYearSort;
+import com.zklcsoftware.ganzhoubaobiao.dto.MonthContrastCountDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.checkListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.scheduleListDto;
+import com.zklcsoftware.ganzhoubaobiao.dto.yearSortListDto;
+import com.zklcsoftware.ganzhoubaobiao.service.TDictionaryService;
+import com.zklcsoftware.ganzhoubaobiao.service.TProjectSchoolService;
+import com.zklcsoftware.ganzhoubaobiao.service.TSchoolFileService;
+import com.zklcsoftware.ganzhoubaobiao.service.TSchoolInvertedService;
+import com.zklcsoftware.ganzhoubaobiao.service.TSchoolScheduleService;
+import com.zklcsoftware.ganzhoubaobiao.service.TYearSortService;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Controller of TDataCollect
+ * @author administrator
+ * @date 2019-3-18
+ */
+@Slf4j
+@Controller
+@RequestMapping(path={"","/api"})
+public class TCkeckCollectController extends ExtBaseController {
+	
+	@Autowired
+	private TSchoolScheduleService tSchoolScheduleService;
+	@Autowired
+	private TSchoolInvertedService tSchoolInvertedService;
+	@Autowired
+	private TSchoolFileService tSchoolFileService;
+	@Autowired
+	private TDictionaryService tDictionaryService;
+	@Autowired
+	private TProjectSchoolService tProjectSchoolService;
+	@Autowired
+	private TYearSortService tYearSortService;
+	
+	@ApiOperation(value = "市级数据看板列表（查询所有学校的状态）", notes = "市级数据看板列表（查询所有学校的状态）")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "month", value = "月份", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "checkStatus", value = "状态", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "town_id", value = "区县id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "stage", value = "阶段", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "status", value = "当前应该看到的状态的学校", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "level", value = "1区级2市级", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/kanbanList", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult kanbanList(OperaResult result,String projectId,String month,String status,String town_id,String stage,String checkStatus,String level) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        params.put("month", month);
+        params.put("town_id", town_id);
+        params.put("status", status);
+        params.put("stage", stage);
+        params.put("checkStatus", checkStatus);
+        List<checkListDto> list = new ArrayList<>();
+        boolean iscolor = false;
+        //如果是市级
+        if(level.equals("1")){
+        	List<checkListDto> shijiList = tSchoolScheduleService.checkShijiList(params);
+        	//过程的个数
+        	List<scheduleListDto> slist = tSchoolScheduleService.quxianScheduleList(params);
+        	Integer jieduan = -1;
+        	int colorNum = 0;
+        	String color = "";
+        	for(scheduleListDto sc:slist){
+        		if(jieduan == sc.getStage()){
+        			sc.setColor(color);
+        		}else{
+        			color = ConstantUtil.colors[colorNum%ConstantUtil.colors.length];
+        			sc.setColor(color);
+        			colorNum++;
+        			jieduan = sc.getStage();
+        		}
+        	}
+        	iscolor = true;
+        	shijiList.get(0).setScheduleList(slist);
+            list.addAll(shijiList);
+        }
+        //查询区级数据
+        List<checkListDto> qujiList = tSchoolScheduleService.checkQujiList(params);
+        for(checkListDto item:qujiList){
+        	list.add(item);
+            params.put("townId", item.getTownId());
+            //过程的个数
+            List<scheduleListDto> slist = tSchoolScheduleService.quxianScheduleList(params);
+            //如果是区级并且没设置颜色，则需要颜色 
+            if(level.equals("2") && !iscolor){
+            	Integer jieduan = -1;
+            	int colorNum = 0;
+            	String color = "";
+                for(scheduleListDto sc:slist){
+            		if(jieduan == sc.getStage()){
+            			sc.setColor(color);
+            		}else{
+            			color = ConstantUtil.colors[colorNum%ConstantUtil.colors.length];
+            			sc.setColor(color);
+            			colorNum++;
+            		}
+            	}
+                iscolor = true;
+            }
+            item.setScheduleList(slist);
+        	//查询区级下面的学校
+            List<checkListDto> xuexiaoList = tSchoolScheduleService.checkXuexiaoList(params);
+        	int sort = 1;
+            for(checkListDto xuexiao:xuexiaoList){
+            	xuexiao.setSort(sort);
+            	sort++;
+                //查询倒排时间
+            	List<TSchoolInverted> ilist = tSchoolInvertedService.findByTProjectSchoolId(xuexiao.getTProjectSchoolId());
+            	xuexiao.setInvertedList(ilist);
+            	//查文件
+            	List<TSchoolFile> flist = tSchoolFileService.findByTProjectSchoolId(xuexiao.getTProjectSchoolId());
+            	xuexiao.setFileList(flist);
+            }
+            list.addAll(xuexiaoList);
+        }
+        
+        result.getContent().put("list", list);
+        return result;
+    }
+	
+
+	
+	@ApiOperation(value = "市级数据看板列表统计信息", notes = "市级数据看板列表统计信息")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "month", value = "月份", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "checkStatus", value = "状态", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "town_id", value = "区县id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "stage", value = "阶段", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "status", value = "当前应该看到的状态的学校", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "level", value = "1区级2市级", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/kanbanCount", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult kanbanCount(OperaResult result,String projectId,String month,String status,String town_id,String stage,String checkStatus,String level) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        params.put("month", month);
+        params.put("town_id", town_id);
+        params.put("status", status);
+        params.put("stage", stage);
+        params.put("checkStatus", checkStatus);
+        List<scheduleListDto> list = tSchoolScheduleService.kanbanCount(params);
+        result.getContent().put("list", list);
+        return result;
+    }
+	
+	@ApiOperation(value = "审核信息", notes = "审核信息")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "id", value = "id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "checkType(1按学校审核，2按区审核)", value = "checkType", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "status", value = "当前应该看到的状态的学校", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "userStatus", value = "审核后的状态", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/checkStatus", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult checkStatus(OperaResult result,String id,String checkType,String status,Integer userStatus,String projectId) {
+        Map<String,Object> params = new HashMap<>();
+        if(checkType.equals("1")){
+        	params.put("schoolId", id);
+        }else if(checkType.equals("2")){
+        	params.put("townId", id);
+        }
+    	params.put("status", status);
+    	params.put("projectId", projectId);
+        
+        List<TSchoolSchedule> scheduleList = tSchoolScheduleService.checkStatusList(params);
+        for(TSchoolSchedule item:scheduleList){
+        	item.setStatus(userStatus);
+        	tSchoolScheduleService.save(item);
+        }
+        return result;
+    }
+	
+	@ApiOperation(value = "审核页面列表（查询当前月需要审核的学校）", notes = "审核页面列表（查询当前月需要审核的学校）")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "month", value = "月份", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "checkStatus", value = "状态", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "town_id", value = "区县id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "stage", value = "阶段", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "status", value = "当前应该看到的状态的学校", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "level", value = "1区级2市级", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/checkList", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult checkList(OperaResult result,String projectId,String month,String status,String town_id,String stage,String checkStatus,String level) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        params.put("month", month);
+        params.put("town_id", town_id);
+        params.put("status", status);
+        params.put("stage", stage);
+        params.put("checkStatus", checkStatus);
+        List<checkListDto> list = new ArrayList<>();
+        boolean iscolor = false;
+        //如果是市级
+        if(level.equals("1")){
+        	List<checkListDto> shijiList = tSchoolScheduleService.checkInfoShijiList(params);
+        	//过程的个数
+        	List<scheduleListDto> slist = tSchoolScheduleService.quxianScheduleList(params);
+        	Integer jieduan = -1;
+        	int colorNum = 0;
+        	String color = "";
+        	for(scheduleListDto sc:slist){
+        		if(jieduan == sc.getStage()){
+        			sc.setColor(color);
+        		}else{
+        			color = ConstantUtil.colors[colorNum%ConstantUtil.colors.length];
+        			sc.setColor(color);
+        			colorNum++;
+        			jieduan = sc.getStage();
+        		}
+        	}
+        	iscolor = true;
+        	shijiList.get(0).setScheduleList(slist);
+            list.addAll(shijiList);
+        }
+        //查询区级数据
+        List<checkListDto> qujiList = tSchoolScheduleService.checkInfoQuxianList(params);
+        for(checkListDto item:qujiList){
+        	list.add(item);
+            params.put("townId", item.getTownId());
+            //过程的个数
+            List<scheduleListDto> slist = tSchoolScheduleService.quxianScheduleList(params);
+            //如果是区级并且没设置颜色，则需要颜色 
+            if(level.equals("1") && !iscolor){
+            	Integer jieduan = -1;
+            	int colorNum = 0;
+            	String color = "";
+                for(scheduleListDto sc:slist){
+            		if(jieduan == sc.getStage()){
+            			sc.setColor(color);
+            		}else{
+            			color = ConstantUtil.colors[colorNum%ConstantUtil.colors.length];
+            			sc.setColor(color);
+            			colorNum++;
+            		}
+            	}
+                iscolor = true;
+            }
+            item.setScheduleList(slist);
+        	//查询区级下面的学校
+            List<checkListDto> xuexiaoList = tSchoolScheduleService.checkInfoXuexiaoList(params);
+            for(checkListDto xuexiao:xuexiaoList){
+            	int sort = 1;
+            	xuexiao.setSort(sort);
+            	sort++;
+                //查询倒排时间
+            	List<TSchoolInverted> ilist = tSchoolInvertedService.findByTProjectSchoolId(xuexiao.getTProjectSchoolId());
+            	xuexiao.setInvertedList(ilist);
+            	//查文件
+            	List<TSchoolFile> flist = tSchoolFileService.findByTProjectSchoolId(xuexiao.getTProjectSchoolId());
+            	xuexiao.setFileList(flist);
+            }
+            list.addAll(xuexiaoList);
+        }
+        
+        result.getContent().put("list", list);
+        return result;
+    }
+	
+	@ApiOperation(value = "年度排名表", notes = "年度排名表")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/yearSort", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult yearSort(OperaResult result,Integer projectId,String year) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        params.put("year", year);
+        List<TYearSort> list = new ArrayList<>();
+        //合计
+        TYearSort shijiite = tYearSortService.yearSortCount(params);
+        shijiite.setTownName("合计");
+        shijiite.setTypes(0);
+        list.add(shijiite);
+        //查询区县类别
+        List<TDictionary> townTypeList = tDictionaryService.findByPcode("103");
+        for(TDictionary item:townTypeList){
+            params.put("town_type", item.getCode());
+            List<TYearSort> qujiList = tYearSortService.findByYearAndProjectIdAndTownType(year, projectId, item.getCode());
+            if(qujiList!=null && qujiList.size()>0){
+            	list.addAll(qujiList);
+                TYearSort qulei = tYearSortService.yearSortCount(params);
+                qulei.setTownName("合计");
+                qulei.setTownTypeName(item.getName());
+                qulei.setTypes(1);
+                list.add(qulei);
+            }
+            
+        }
+        result.getContent().put("list", list);
+        return result;
+    }
+	
+	@ApiOperation(value = "年度排名表计算", notes = "年度排名表计算")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/yearSortJisuan", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult yearSortJisuan(OperaResult result,Integer projectId,String year) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        params.put("year", year);
+        List<yearSortListDto> list = new ArrayList<>();
+        //删除数据
+        tYearSortService.removeByYearAndProjectId(year, projectId);
+        //表格中写数据
+        List<TYearSort> ysList = tSchoolScheduleService.yearSortJisuan(params);
+        for(TYearSort one:ysList){
+        	one.setYear(year);
+        	one.setProjectId(projectId);
+        	one.setTypes(1);
+        	tYearSortService.save(one);
+        }
+        //查询区县类别
+        List<TDictionary> townTypeList = tDictionaryService.findByPcode("103");
+        for(TDictionary item:townTypeList){
+        	params.put("town_type", item.getCode());
+        	yearSortListDto quleiitem = tSchoolScheduleService.yearSort(params);
+        	params.put("zxm", quleiitem.getCount());
+        	params.put("zmj", quleiitem.getArea());
+        	params.put("ztz", quleiitem.getAllInvest());
+        	if(quleiitem.getCount() != null && quleiitem.getCount()>0){
+        		List<TYearSort> ttList = tYearSortService.findByYearAndProjectIdAndTownTypeSort(params);
+            	for(int i=0;i<ttList.size();i++){
+            		TYearSort tt = ttList.get(i);
+            		tt.setScore(tt.getQunzhongfen());
+            		tt.setSort1(tt.getQunzhongfensort());
+            		tYearSortService.save(tt);
+            	}
+        	}
+        	
+        }
+        //排序2
+        List<TYearSort> ttList2 = tYearSortService.findByYearAndProjectIdOrderByAllInvestDesc(params);
+        for(int i=0;i<ttList2.size();i++){
+    		TYearSort tt = ttList2.get(i);
+    		tt.setSort2(tt.getQunzhongfensort());
+    		tYearSortService.save(tt);
+    	}
+        //排序3
+        List<TYearSort> ttList3 = tYearSortService.findByYearAndProjectIdOrderByKaigonglvDesc(params);
+        for(int i=0;i<ttList3.size();i++){
+    		TYearSort tt = ttList3.get(i);
+    		tt.setSort3(tt.getQunzhongfensort());
+    		tYearSortService.save(tt);
+    	}
+        result.getContent().put("list", list);
+        return result;
+    }
+	
+	@ApiOperation(value = "月份比对统计", notes = "月份比对统计")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "months", value = "对比的月份", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/monthContrast", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult monthContrast(OperaResult result,String projectId,String months) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        String[] month = months.split(",");
+    	List<checkListDto> list = new ArrayList<>();
+        for(String m:month){
+        	params.put("month", m);
+            boolean iscolor = false;
+            //如果是市级
+            	List<checkListDto> shijiList = tSchoolScheduleService.checkShijiList(params);
+            	//月份
+            	for(checkListDto item:shijiList){
+            		item.setMonth(m);
+            	}
+            	//过程的个数
+            	List<scheduleListDto> slist = tSchoolScheduleService.quxianScheduleList(params);
+            	Integer jieduan = -1;
+            	int colorNum = 0;
+            	String color = "";
+            	if(!iscolor){
+            		for(scheduleListDto sc:slist){
+                		if(jieduan == sc.getStage()){
+                			sc.setColor(color);
+                		}else{
+                			color = ConstantUtil.colors[colorNum%ConstantUtil.colors.length];
+                			sc.setColor(color);
+                			colorNum++;
+                			jieduan = sc.getStage();
+                		}
+                	}
+                	iscolor = true;
+                	shijiList.get(0).setScheduleList(slist);
+            	}            	
+                list.addAll(shijiList);
+        }
+        List<TDictionary> townList = tDictionaryService.findByPcode("100");
+        for(TDictionary town:townList){
+        	params.put("town_id", town.getCode());
+        	params.put("townId", town.getCode());
+        	for(String m:month){
+        		params.put("month", m);
+        		List<checkListDto> qujiList = tSchoolScheduleService.checkQujiList(params);
+        		if(qujiList!=null && qujiList.size()>0){
+        			List<scheduleListDto> slist = tSchoolScheduleService.quxianScheduleList(params);
+            		qujiList.get(0).setScheduleList(slist);
+            		qujiList.get(0).setMonth(m);
+            		list.addAll(qujiList);
+        		}        		
+        	}
+        	List<TProjectSchool> schoolList = tProjectSchoolService.findByTownId(town.getCode());
+        	for(TProjectSchool school:schoolList){
+        		int sort = 1;
+        		params.put("schoolId", school.getId());
+        		for(String m:month){
+        			params.put("month", m);
+        			List<checkListDto> xuexiaoList = tSchoolScheduleService.checkXuexiaoList(params);
+        			xuexiaoList.get(0).setMonth(m);
+        			xuexiaoList.get(0).setSort(sort);
+        			list.addAll(xuexiaoList);
+        		}
+        		sort++;
+        	}
+        }
+        result.getContent().put("list", list);
+        return result;
+    }
+	
+	@ApiOperation(value = "月份比对统计", notes = "月份比对统计")
+    @ApiImplicitParams({
+		@ApiImplicitParam(name = "projectId", value = "项目id", required = true, dataType = "String",paramType = "query"),
+		@ApiImplicitParam(name = "months", value = "对比的月份", required = true, dataType = "String",paramType = "query"),
+        @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/monthContrastCount", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult monthContrastCount(OperaResult result,String projectId,String months) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        String[] month = months.split(",");
+        List<MonthContrastCountDto> list = new ArrayList<>();
+        DecimalFormat df = new DecimalFormat("#.##");
+        for(String m:month){
+        	params.put("month", m);
+        	MonthContrastCountDto item = tSchoolScheduleService.monthContrastCount(params);
+        	item.setMonth(m);
+        	if(item.getCount()!=null && item.getCount()!=0){
+        		item.setWcl(item.getSy() == 0 ? "0" : df.format((float)item.getSy()/item.getCount()*100));
+        		item.setKgl(item.getKg() == 0 ? "0" : df.format((float)item.getKg()/item.getCount()*100));
+        		item.setWkgl(item.getWkg() == 0 ? "0" : df.format((float)item.getWkg()/item.getCount()*100));
+        	}
+        	list.add(item);
+        }
+        result.getContent().put("list", list);
+        return result;
+	}
+}

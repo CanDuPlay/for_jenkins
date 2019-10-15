@@ -1,0 +1,31 @@
+package com.zklcsoftware.ganzhoubaobiao.dto;
+
+import java.io.Serializable;
+import java.util.Date;
+import lombok.Data;
+
+@SuppressWarnings("serial")
+@Data
+public class TProjectVueDTO implements Serializable{
+
+	private Integer	id; //主键id
+	
+	private String name; //项目名称
+	
+	private Date startTime; //开工年份
+	
+	private Date endTime; //竣工年份
+	
+	private String contacts; //总负责人
+	
+	private Float invest; //规划总投资
+	
+	private Date finishTime; //截止申报时间
+	
+	private Integer	procedureType; //程序流程
+	
+	private Integer status; //状态
+	
+	private Integer schoolNum; //学校数量
+	
+}

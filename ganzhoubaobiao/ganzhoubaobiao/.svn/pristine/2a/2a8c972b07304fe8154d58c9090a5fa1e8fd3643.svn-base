@@ -1,0 +1,73 @@
+package com.zklcsoftware.ganzhoubaobiao.web.controller;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.zklcsoftware.common.dto.OperaResult;
+import com.zklcsoftware.common.web.ExtBaseController;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * 
+* @ClassName: TProjectController  
+* @Description: 项目详情  
+* @author lipanlong  
+* @date 2019年3月20日  
+*
+ */
+@Slf4j
+@Controller
+@RequestMapping(path={"","/api"})
+public class TProjectController extends ExtBaseController {
+
+    
+    /**
+     * 
+    * @author lipanlong
+    * @Title: deleteColumn  
+    * @Description: TODO(这里用一句话描述这个方法的作用)  
+    * @param @param result
+    * @param @return    参数  
+    * @return OperaResult    返回类型  
+    * @throws
+     */
+    @ApiOperation(value = "市局科室查询项目列表", notes = "市局科室查询项目列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "access_token"),
+    })
+    @RequestMapping(value = "/web/queryProjectList", method = {RequestMethod.POST})
+    @ResponseBody
+    public OperaResult queryProjectList(OperaResult result) {
+        log.info("111");
+        
+        return result;
+    }
+    
+    
+    /**
+     * form表单提交 Date类型数据绑定
+     * <功能详细描述>
+     * @param binder
+     * @see [类、类#方法、类#成员]
+     */
+    @InitBinder  
+    public void initBinder(WebDataBinder binder) {  
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+        dateFormat.setLenient(false);  
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));  
+    }
+    
+
+}

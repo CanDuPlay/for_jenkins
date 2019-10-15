@@ -1,0 +1,31 @@
+package com.zklcsoftware.ganzhoubaobiao.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.zklcsoftware.basic.service.impl.BaseServiceImpl;
+import com.zklcsoftware.ganzhoubaobiao.domain.TProcedure;
+import com.zklcsoftware.ganzhoubaobiao.repository.TProcedureRepository;
+import com.zklcsoftware.ganzhoubaobiao.service.TProcedureService;
+
+@Service
+@Transactional
+public class TProcedureServiceImpl extends BaseServiceImpl<TProcedure, Integer> implements TProcedureService {
+
+	@Autowired
+	private TProcedureRepository tProcedureRepository;
+	
+	@Override
+	public List<TProcedure> findByTProcedureTypeId(Integer procedureId) {
+		return tProcedureRepository.findByTProcedureTypeId(procedureId);
+	}
+
+	@Override
+	public List<TProcedure> findByTProcedureTypeIdOrderByIdAsc(Integer id) {
+		return tProcedureRepository.findByTProcedureTypeIdOrderByIdAsc(id);
+	}
+	
+}

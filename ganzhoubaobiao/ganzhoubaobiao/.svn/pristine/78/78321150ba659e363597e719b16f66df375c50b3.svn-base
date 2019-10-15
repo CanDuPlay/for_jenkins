@@ -1,0 +1,44 @@
+package com.zklcsoftware.ganzhoubaobiao.dto;
+
+import java.io.Serializable;
+
+import lombok.Data;
+
+
+@SuppressWarnings("serial")
+@Data
+public class TProjectSchoolDTO implements Serializable {
+
+    private String projectId;           //项目id
+    
+    private String id;                  //学校id
+    
+    private String townId;              //区县id
+    
+    private String townName;            //区县名
+    
+    private String schoolId;            //学校id
+    
+    private String schoolName;          //学校名称
+    
+    private String schoolType;          //学校类型
+    
+    private float area;                 //建筑面积
+    
+    private Integer newBuild;           //新增学位
+    
+    private float invest;               //规划总投资
+    
+    private String startYear;           //开工年份
+    
+    private String endYear;             //竣工年份
+    
+    private String nowSchedule;         //项目状态
+    
+    private Boolean shenBao;          //是否申报
+    
+    private Integer roleStatus;         //审核id 
+
+    private Integer isDaopai;           //是否倒排   0或空：否   1：是
+ 
+}

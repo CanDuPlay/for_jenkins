@@ -1,0 +1,109 @@
+package com.zklcsoftware.ganzhoubaobiao.domain;
+
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import org.hibernate.annotations.GenericGenerator;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonView;
+import org.hibernate.validator.constraints.Length;
+import com.zklcsoftware.basic.model.AbstractBaseDomain;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@SuppressWarnings("serial")
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name="t_project_school")
+@ApiModel(value = "TProjectSchool", description = "项目学校表")
+public class TProjectSchool extends AbstractBaseDomain {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	id;
+	
+	@Column(name="project_id")
+	@ApiModelProperty(value = "项目id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	projectId;
+	
+	@Column(name="school_name")
+	@ApiModelProperty(value = "学校名称")
+	@Length(max=100,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	schoolName;
+	
+	@Column(name="school_type")
+	@ApiModelProperty(value = "学校类型（字典）")
+	@Length(max=10,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	schoolType;
+	
+	@Column(name="area")
+	@ApiModelProperty(value = "建筑面积")
+	@JsonView(WithoutView.class)
+	private Float	area;
+	
+	@Column(name="new_build")
+	@ApiModelProperty(value = "新建学位")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	newBuild;
+	
+	@Column(name="invest")
+	@ApiModelProperty(value = "总投资")
+	@JsonView(WithoutView.class)
+	private Float	invest;
+	
+	@Column(name="start_year")
+	@ApiModelProperty(value = "开工年份")
+	@Length(max=4,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	startYear;
+	
+	@Column(name="end_year")
+	@ApiModelProperty(value = "竣工年份")
+	@Length(max=4,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	endYear;
+	
+	@Column(name="now_schedule")
+	@ApiModelProperty(value = "当前项目进度")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	nowSchedule;
+	
+	@Column(name="reward")
+	@ApiModelProperty(value = "重点说明情况")
+	@Length(max=200,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	reward;
+	
+	@Column(name="is_start")
+	@ApiModelProperty(value = "是否开工")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	isStart;
+	
+	@Column(name="town_id")
+	@ApiModelProperty(value = "区县id")
+	@Length(max=20,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	townId;
+	
+}

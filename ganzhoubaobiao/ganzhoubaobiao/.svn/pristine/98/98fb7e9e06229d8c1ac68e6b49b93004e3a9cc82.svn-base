@@ -1,0 +1,99 @@
+package com.zklcsoftware.ganzhoubaobiao.domain;
+
+import java.util.Date;
+import java.util.List;
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.zklcsoftware.basic.model.AbstractBaseDomain;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectCreateDTO;
+import com.zklcsoftware.ganzhoubaobiao.dto.TProjectTownDTO;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@SuppressWarnings("serial")
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name="t_project")
+@ApiModel(value = "TProject", description = "项目表")
+public class TProject extends AbstractBaseDomain {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="id")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	id;
+	
+	@Column(name="name")
+	@ApiModelProperty(value = "项目名称")
+	@Length(max=500,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	name;
+	
+	@Column(name="start_time")
+	@ApiModelProperty(value = "开工时间")
+	@JsonView(WithoutView.class)
+	private Date	startTime;
+	
+	@Column(name="end_time")
+	@ApiModelProperty(value = "竣工时间")
+	@JsonView(WithoutView.class)
+	private Date	endTime;
+	
+	@Column(name="contacts")
+	@ApiModelProperty(value = "总负责人")
+	@Length(max=20,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private String	contacts;
+	
+	@Column(name="invest")
+	@ApiModelProperty(value = "规划总投资")
+	@JsonView(WithoutView.class)
+	private Float	invest;
+	
+	@Column(name="finish_time")
+	@ApiModelProperty(value = "截至申报时间")
+	@JsonView(WithoutView.class)
+	private Date	finishTime;
+	
+	@Column(name="procedure_type")
+	@ApiModelProperty(value = "流程类型")
+	@Length(max=11,groups= {UpdateValid.class, AddValid.class})
+	@JsonView(WithoutView.class)
+	private Integer	procedureType;
+	
+	@Column(name="status")
+    @ApiModelProperty(value = "项目状态:1未开始2进行中3已结束4已封存")
+    @Length(max=11,groups= {UpdateValid.class, AddValid.class})
+    @JsonView(WithoutView.class)
+    private Integer status;
+	
+	@Transient
+	private List<TProjectCreateDTO> projectData; //存项目阶段、进度数据
+	
+	@Transient
+	private List<TProjectTownDTO> townData; //区县范围数据
+	
+}

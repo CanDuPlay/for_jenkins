@@ -1,0 +1,14 @@
+#系统中使用到的原生sql查询
+nativesql: 
+  sqls: 
+    testsqldemo1: |
+        SELECT id,last_name,first_name, email,mobile  
+        FROM user 
+        WHERE 1=1 
+                ORDER BY id 
+    testsqldemo2: |
+        SELECT count(1)  
+        FROM user 
+        WHERE 1=1 
+    testsqldemo3: select 3
+    testsqldemo4: select 4
